@@ -5,13 +5,13 @@
       <rdf:Seq>
         <rdf:li>
           <rdf:Description>
-            <em:version>0.1.0</em:version>
+            <em:version>1.0.0</em:version>
             <em:targetApplication>
               <rdf:Description>
                 <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
                 <em:minVersion>38.0</em:minVersion>
                 <em:maxVersion>45.*</em:maxVersion>
-                <em:updateLink>https://github.com/bwiernik/zotero-shortdoi/releases/download/v0.1.0/zoteroshortdoi.xpi</em:updateLink>
+                <em:updateLink>https://github.com/bwiernik/zotero-shortdoi/releases/download/v1.0.0/zoteroshortdoi-1.0.0.xpi</em:updateLink>
               </rdf:Description>
             </em:targetApplication>
           </rdf:Description>
