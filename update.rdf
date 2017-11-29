@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:em="http://www.mozilla.org/2004/em-rdf#">
-  <rdf:Description rdf:about="urn:mozilla:extension:propachi-vanilla@juris-m.github.io">
+  <rdf:Description rdf:about="urn:mozilla:extension:zoteroshortdoi@wiernik.org">
     <em:updates>
       <rdf:Seq>
         <rdf:li>
@@ -8,9 +8,17 @@
             <em:version>1.0.0</em:version>
             <em:targetApplication>
               <rdf:Description>
-                <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
-                <em:minVersion>38.0</em:minVersion>
-                <em:maxVersion>45.*</em:maxVersion>
+                <em:id>zotero@chnm.gmu.edu</em:id>
+                <em:minVersion>4.0</em:minVersion>
+                <em:maxVersion>5.*</em:maxVersion>
+                <em:updateLink>https://github.com/bwiernik/zotero-shortdoi/releases/download/v1.0.0/zoteroshortdoi-1.0.0.xpi</em:updateLink>
+              </rdf:Description>
+            </em:targetApplication>
+            <em:targetApplication>
+              <rdf:Description>
+                <em:id>juris-m@juris-m.github.io</em:id>
+                <em:minVersion>4.0</em:minVersion>
+                <em:maxVersion>5.*</em:maxVersion>
                 <em:updateLink>https://github.com/bwiernik/zotero-shortdoi/releases/download/v1.0.0/zoteroshortdoi-1.0.0.xpi</em:updateLink>
               </rdf:Description>
             </em:targetApplication>
