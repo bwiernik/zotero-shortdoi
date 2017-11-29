@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:em="http://www.mozilla.org/2004/em-rdf#">
+  <rdf:Description rdf:about="urn:mozilla:extension:propachi-vanilla@juris-m.github.io">
+    <em:updates>
+      <rdf:Seq>
+        <rdf:li>
+          <rdf:Description>
+            <em:version>0.1.0</em:version>
+            <em:targetApplication>
+              <rdf:Description>
+                <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
+                <em:minVersion>38.0</em:minVersion>
+                <em:maxVersion>45.*</em:maxVersion>
+                <em:updateLink>https://github.com/bwiernik/zotero-shortdoi/releases/download/v0.1.0/zoteroshortdoi.xpi</em:updateLink>
+              </rdf:Description>
+            </em:targetApplication>
+          </rdf:Description>
+        </rdf:li>
+      </rdf:Seq>
+    </em:updates>
+  </rdf:Description>
+</rdf:RDF>
+

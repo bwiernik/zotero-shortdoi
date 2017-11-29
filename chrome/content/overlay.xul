@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE overlay SYSTEM "chrome://zoteroshortdoi/locale/overlay.dtd">
+
+<overlay
+    id="zoteroshortdoi"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <script
+        type="application/x-javascript"
+        src="chrome://zoteroshortdoi/content/scripts/zoteroshortdoi.js"/>
+
+    <stringbundleset id="stringbundleset">
+        <stringbundle
+            id="zoteroshortdoi-bundle"
+            src="chrome://zoteroshortdoi/locale/zoteroshortdoi.properties"/>
+    </stringbundleset>
+
+    <popup id="zotero-collectionmenu">
+        <menuitem
+            id="zotero-collectionmenu-zoteroshortdoi"
+            label="&zotero.zoteroshortdoi.update.label;"
+            oncommand="Zotero.ShortDOI.updateSelectedEntity()"/>
+    </popup>
+
+    <popup
+        id="zotero-itemmenu"
+        onpopupshowing="ZoteroPane.buildItemContextMenu();">
+        <menuitem
+            id="zotero-itemmenu-zoteroshortdoi"
+            label="&zotero.zoteroshortdoi.update.label;"
+            oncommand="Zotero.ShortDOI.updateSelectedItems()"/>
+    </popup>
+</overlay>

@@ -1,0 +1,4 @@
+<?xml version="1.0" ?>
+<vbox xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <setting pref="extensions.shortdoi.savelong" title="Save Long DOI in Extra" type="bool"/>
+</vbox>

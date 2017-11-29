@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<RDF:RDF
+    xmlns:em="http://www.mozilla.org/2004/em-rdf#"
+    xmlns:NC="http://home.netscape.com/NC-rdf#"
+    xmlns:RDF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <RDF:Description
+        RDF:about="rdf:#$x61SL3"
+        em:id="{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"
+        em:minVersion="2.0"
+        em:maxVersion="20.*"/>
+    <RDF:Description
+        RDF:about="urn:mozilla:install-manifest"
+        em:id="zoteroshortdoi@wiernik.org"
+        em:name="Zotero Short DOI Lookup"
+        em:version="0.1.0"
+        em:type="2"
+        em:creator="Brenton M. Wiernik"
+        em:description="Zotero plugin for auto-fetching Short DOI names"
+        em:homepageURL="http://wiernik.org/software"
+        em:updateURL="https://raw.githubusercontent.com/bwiernik/zotero-shortdoi/master/update.rdf">
+        <em:type>2</em:type>
+        <em:targetApplication RDF:resource="rdf:#$x61SL3"/>
+        <em:targetApplication>
+            <Description>
+                <em:id>zotero@chnm.gmu.edu</em:id>
+                <em:minVersion>3.0b1</em:minVersion>
+                <em:maxVersion>5.0.*</em:maxVersion>
+            </Description>
+        </em:targetApplication>
+    </RDF:Description>
+</RDF:RDF>
