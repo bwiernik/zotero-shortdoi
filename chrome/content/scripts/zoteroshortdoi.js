@@ -201,69 +201,74 @@ Zotero.ShortDOI.generateItemUrl = function(item, attempt) {
 Zotero.ShortDOI.updateItem = function(item) {
     var req = new XMLHttpRequest();
     var url = Zotero.ShortDOI.generateItemUrl(item, "initial");
-    req.open('GET', url, true);
+    if ( ! url ) {
+        Zotero.ShortDOI.updateNextItem();
+    } else {
+        req.open('GET', url, true);
 
-    req.onreadystatechange = function() {
-        if (req.readyState == 4) {
-            if (req.status == 200 && req.responseText !== '') {
-                if (item.isRegularItem() && !item.isCollection()) {
-                    var doiResponse = JSON.parse(req.responseText);
-                    var shortDOI = doiResponse.ShortDOI;
-                    if(Zotero.ShortDOI.savelong) {
-                        var longDOI = doiResponse.DOI;
-                        var longDOIstring = 'Long DOI: ' + longDOI + ' '
-                        try {
-                            var old = item.getField('extra')
-                                if (old.length == 0 || old.search(/^Long DOI: *[^\s]+$/) != -1) {//If empty or just Long DOI:
-                                    item.setField('extra', longDOIstring);
-                                } else if (old.search(/^Long DOI: *[^\s]+/) != -1) {//If the field starts with Long DOI: 
-                                    item.setField(
-                                            'extra',
-                                            old.replace(/^Long DOI: *[^\s]+ ?/, longDOIstring));
-                                } else if (old.search(/\nLong DOI: *[^\s]+/) != -1) { //If there are citations and somthing else on same line
-                                    item.setField(
-                                            'extra',
-                                            old.replace(/\nLong DOI: *[^\s]+ ?/, ' \n' + longDOIstring));
-                                } else {
-                                    item.setField('extra', old + ' \n' + longDOIstring);
-                                }
-                                item.setField('DOI', shortDOI);
-                                item.saveTx();
-                        } catch (e) {}                        
-                    } else {
-                        item.setField('DOI', shortDOI);
-                        item.saveTx();
-                    }
-                }
-                Zotero.ShortDOI.updateNextItem();
-            } else if (req.status == 200 ||
-                    req.status == 403 ||
-                    req.status == 503) {
-                alert(Zotero.ShortDOI.DOInotfoundString);
-                var url2 = Zotero.ShortDOI.generateItemUrl(item, "notfound");
-                req2 = new XMLHttpRequest();
-                req2.open('GET', url2, true);
-                req2.onreadystatechange = function() {
-                    if (req2.readyState == 4) {
-                        if (typeof Zotero.launchURL !== 'undefined') {
-                            Zotero.launchURL(url);
-                        } else if (typeof Zotero.openInViewer !== 'undefined') {
-                            Zotero.openInViewer(url);
-                        } else if (typeof ZoteroStandalone !== 'undefined') {
-                            ZoteroStandalone.openInViewer(url);
+        req.onreadystatechange = function() {
+            if (req.readyState == 4) {
+                if (req.status == 200 && req.responseText !== '') {
+                    if (item.isRegularItem() && !item.isCollection()) {
+                        var doiResponse = JSON.parse(req.responseText);
+                        var shortDOI = doiResponse.ShortDOI;
+                        if(Zotero.ShortDOI.savelong) {
+                            var longDOI = doiResponse.DOI;
+                            var longDOIstring = 'Long DOI: ' + longDOI + ' '
+                            try {
+                                var old = item.getField('extra')
+                                    if (old.length == 0 || old.search(/^Long DOI: *[^\s]+$/) != -1) {//If empty or just Long DOI:
+                                        item.setField('extra', longDOIstring);
+                                    } else if (old.search(/^Long DOI: *[^\s]+/) != -1) {//If the field starts with Long DOI: 
+                                        item.setField(
+                                                'extra',
+                                                old.replace(/^Long DOI: *[^\s]+ ?/, longDOIstring));
+                                    } else if (old.search(/\nLong DOI: *[^\s]+/) != -1) { //If there are citations and somthing else on same line
+                                        item.setField(
+                                                'extra',
+                                                old.replace(/\nLong DOI: *[^\s]+ ?/, ' \n' + longDOIstring));
+                                    } else {
+                                        item.setField('extra', old + ' \n' + longDOIstring);
+                                    }
+                                    item.setField('DOI', shortDOI);
+                                    item.saveTx();
+                            } catch (e) {}                        
                         } else {
-                            window.gBrowser.loadOneTab(
-                                    url, {inBackground: false});
+                            item.setField('DOI', shortDOI);
+                            item.saveTx();
                         }
-                        Zotero.ShortDOI.resetState();
                     }
+                    Zotero.ShortDOI.updateNextItem();
+                } else if (req.status == 200 ||
+                        req.status == 403 ||
+                        req.status == 503) {
+                    alert(Zotero.ShortDOI.DOInotfoundString);
+                    var url2 = Zotero.ShortDOI.generateItemUrl(item, "notfound");
+                    req2 = new XMLHttpRequest();
+                    req2.open('GET', url2, true);
+                    req2.onreadystatechange = function() {
+                        if (req2.readyState == 4) {
+                            if (typeof Zotero.launchURL !== 'undefined') {
+                                Zotero.launchURL(url);
+                            } else if (typeof Zotero.openInViewer !== 'undefined') {
+                                Zotero.openInViewer(url);
+                            } else if (typeof ZoteroStandalone !== 'undefined') {
+                                ZoteroStandalone.openInViewer(url);
+                            } else {
+                                window.gBrowser.loadOneTab(
+                                        url, {inBackground: false});
+                            }
+                            Zotero.ShortDOI.resetState();
+                        }
+                    }
+                    req2.send(null);
                 }
-                req2.send(null);
             }
-        }
-    };
+        };
 
-    req.send(null);
+        req.send(null);
+    }
+    
 };
 
 if (typeof window !== 'undefined') {
