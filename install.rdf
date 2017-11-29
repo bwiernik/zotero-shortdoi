@@ -12,7 +12,7 @@
         RDF:about="urn:mozilla:install-manifest"
         em:id="zoteroshortdoi@wiernik.org"
         em:name="Zotero Short DOI Lookup"
-        em:version="1.0.0"
+        em:version="1.0.1"
         em:type="2"
         em:creator="Brenton M. Wiernik"
         em:description="Zotero plugin for auto-fetching Short DOI names"
@@ -23,14 +23,14 @@
         <em:targetApplication>
             <Description>
                 <em:id>zotero@chnm.gmu.edu</em:id>
-                <em:minVersion>5.*</em:minVersion>
+                <em:minVersion>5.0</em:minVersion>
                 <em:maxVersion>5.*</em:maxVersion>
             </Description>
         </em:targetApplication>
         <em:targetApplication>
           <Description>
             <em:id>juris-m@juris-m.github.io</em:id>
-            <em:minVersion>5.*</em:minVersion>
+            <em:minVersion>5.0</em:minVersion>
             <em:maxVersion>5.*</em:maxVersion>
           </Description>
         </em:targetApplication>
