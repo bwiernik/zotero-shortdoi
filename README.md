@@ -10,4 +10,4 @@ Code for this extension is based heavily on [Zotero Google Scholar Citations](ht
 
 Copyright (C) 2017 Brenton M. Wiernik
 
-Distributed under the Mozilla Public License (MPL).
+Distributed under the Mozilla Public License (MPL) Version 2.0.
