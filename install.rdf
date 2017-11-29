@@ -11,11 +11,11 @@
     <RDF:Description
         RDF:about="urn:mozilla:install-manifest"
         em:id="zoteroshortdoi@wiernik.org"
-        em:name="Zotero Short DOI Lookup"
+        em:name="Zotero shortDOI Lookup"
         em:version="1.0.1"
         em:type="2"
         em:creator="Brenton M. Wiernik"
-        em:description="Zotero plugin for auto-fetching Short DOI names"
+        em:description="Zotero plugin for auto-fetching shortDOI names"
         em:homepageURL="http://wiernik.org/software"
         em:updateURL="https://raw.githubusercontent.com/bwiernik/zotero-shortdoi/master/update.rdf">
         <em:type>2</em:type>
