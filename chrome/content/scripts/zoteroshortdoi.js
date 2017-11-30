@@ -250,7 +250,8 @@ Zotero.ShortDOI.updateItem = function(item) {
                     Zotero.ShortDOI.updateNextItem();
                 } else if (req.status == 400) {
                     Zotero.ShortDOI.invalidDOI = true;
-                    item.setTags(['_Invalid DOI']);
+                    var tags = item.getTags();
+                    item.setTags(tags.concat(['_Invalid DOI']));
                     item.saveTx();
                     Zotero.ShortDOI.updateNextItem();
                 }
