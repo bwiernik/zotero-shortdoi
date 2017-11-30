@@ -24,8 +24,7 @@
     </popup>
 
     <popup
-        id="zotero-itemmenu"
-        onpopupshowing="ZoteroPane.buildItemContextMenu();">
+        id="zotero-itemmenu">
         <menuitem
             id="zotero-itemmenu-zoteroshortdoi"
             label="&zotero.zoteroshortdoi.update.label;"
