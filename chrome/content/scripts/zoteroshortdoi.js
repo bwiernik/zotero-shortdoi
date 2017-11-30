@@ -1,6 +1,7 @@
 const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 Cu.import("resource://gre/modules/Services.jsm");
 
+// Startup -- load Zotero and constants
 if (typeof Zotero === 'undefined') {
     Zotero = {};
 }
@@ -8,9 +9,11 @@ Zotero.ShortDOI = {};
 
 const PREF_BRANCH = 'extensions.shortdoi.';
 const PREFS = {
-  savelong: true
+    autoshort: true,
+    savelong: true,
 };
 
+// Preference managers
 function getPref(key) {
   // Cache the prefbranch after first use
   if (getPref.branch == null)
@@ -24,6 +27,22 @@ function getPref(key) {
       return getPref.branch.getIntPref(key);
     case "string":
       return getPref.branch.getCharPref(key);
+  }
+}
+
+function setPref(key, value) {
+  // Cache the prefbranch after first use
+  if (setPref.branch == null)
+    setPref.branch = Services.prefs.getBranch(PREF_BRANCH);
+
+  // Figure out what type of pref to fetch
+  switch (typeof PREFS[key]) {
+    case "boolean":
+      return setPref.branch.setBoolPref(key, value);
+    case "number":
+      return setPref.branch.setIntPref(key, value);
+    case "string":
+      return setPref.branch.setCharPref(key, value);
   }
 }
 
@@ -67,12 +86,24 @@ var prefObserver = {
 
   observe: function(aSubject, aTopic, aData) {
     switch (aData) {
-      case "savelong":
-        Zotero.ShortDOI.savelong = getPref("savelong")
-        break;
+      case "savelong": Zotero.ShortDOI.savelong = getPref("savelong");
+      case "autoshort": {
+        Zotero.ShortDOI.autoshort = getPref("autoshort");
+        if (Zotero.ShortDOI.autoshort) {
+            // Register the callback in Zotero as an item observer
+            var notifierID = Zotero.Notifier.registerObserver(
+            Zotero.ShortDOI.notifierCallback, ['item']);
+        } else {
+            // Unregister the callback in Zotero as an item observer
+            Zotero.Notifier.unregisterObserver(notifierID);
+        }
+      } 
+      break;
     }
   }
 }
+
+// Startup - initialize plugin
 
 Zotero.ShortDOI.init = function() {
     setDefaultPrefs();
@@ -86,12 +117,9 @@ Zotero.ShortDOI.init = function() {
             Zotero.ShortDOI.invalidDOITagString = stringBundle.getString('invalidDOITagString');
         }
 
-    // Register the callback in Zotero as an item observer
-    var notifierID = Zotero.Notifier.registerObserver(
-            Zotero.ShortDOI.notifierCallback, ['item']);
     prefObserver.register();
-
     Zotero.ShortDOI.savelong = getPref("savelong")
+    Zotero.ShortDOI.autoshort = getPref("autoshort")
 
     // Unregister callback when the window closes (important to avoid a memory leak)
     window.addEventListener('unload', function(e) {
@@ -108,6 +136,7 @@ Zotero.ShortDOI.notifierCallback = {
         }
     }
 };
+
 
 Zotero.ShortDOI.resetState = function() {
     if (Zotero.ShortDOI.invalidDOI) {
@@ -126,7 +155,65 @@ Zotero.ShortDOI.resetState = function() {
     Zotero.ShortDOI.numberOfUpdatedItems = 0;
 };
 
-Zotero.ShortDOI.updateSelectedEntity = function(libraryId) {
+Zotero.ShortDOI.generateItemUrl = function(item, operation) {
+    if (operation == "short") {
+        var baseURL = 'http://shortdoi.org/';
+        var doi = item.getField('DOI');
+        if (doi && typeof doi === "string") {
+            doi = Zotero.Utilities.cleanDOI(doi);
+            if (doi) {
+                if (doi.match(/10\/[^\s]*[^\s\.,]/)) {
+                    return false;
+                }
+                var url = baseURL + encodeURIComponent(doi) + '?format=json';
+                
+                return url;
+            }
+        }
+        
+        return false;
+
+    } else if (operation == "long") {
+        var baseURL = 'https://doi.org/';
+        var doi = item.getField('DOI');
+        if (doi && typeof doi === "string") {
+            doi = Zotero.Utilities.cleanDOI(doi);
+            if (doi) {
+                if (doi.match(/10\/[^\s]*[^\s\.,]/)) {
+                    var url = baseURL + doi;
+                } else {
+                    return false;
+                }
+                
+                return url;
+            }
+        }
+
+        return false;
+
+    } else {
+        var baseURL = 'https://doi.org/';
+        var doi = item.getField('DOI');
+        if (doi && typeof doi === "string") {
+            doi = Zotero.Utilities.cleanDOI(doi);
+            if (doi) {
+                if (doi.match(/10\/[^\s]*[^\s\.,]/)) {
+                    var url = baseURL + doi;
+                } else {
+                    var url = baseURL + encodeURIComponent(doi);
+                }
+                
+                return url;
+            }
+        }
+
+        return false;
+
+    }
+    
+};
+
+Zotero.ShortDOI.updateSelectedEntity = function(operation) {
     if (!ZoteroPane.canEdit()) {
         ZoteroPane.displayCannotEditLibraryMessage();
         return;
@@ -140,7 +227,7 @@ Zotero.ShortDOI.updateSelectedEntity = function(libraryId) {
         collection.getChildItems(false).forEach(function (item) {
             items.push(Zotero.Items.get(item.id));
         });
-        Zotero.ShortDOI.updateItems(items);
+        Zotero.ShortDOI.updateItems(items, operation);
     } else if (group) {
         if (!group.editable) {
             alert("This group is not editable!");
@@ -152,18 +239,18 @@ Zotero.ShortDOI.updateSelectedEntity = function(libraryId) {
                 items.push(Zotero.Items.get(item.id));
             })
         });
-        Zotero.ShortDOI.updateItems(items);
+        Zotero.ShortDOI.updateItems(items, operation);
     } else {
         Zotero.ShortDOI.resetState();
         return;
     }
 };
 
-Zotero.ShortDOI.updateSelectedItems = function() {
-    Zotero.ShortDOI.updateItems(ZoteroPane.getSelectedItems());
+Zotero.ShortDOI.updateSelectedItems = function(operation) {
+    Zotero.ShortDOI.updateItems(ZoteroPane.getSelectedItems(), operation);
 };
 
-Zotero.ShortDOI.updateItems = function(items) {
+Zotero.ShortDOI.updateItems = function(items, operation) {
     if (items.length == 0 ||
             Zotero.ShortDOI.numberOfUpdatedItems < Zotero.ShortDOI.toUpdate) {
         return;
@@ -172,10 +259,10 @@ Zotero.ShortDOI.updateItems = function(items) {
     Zotero.ShortDOI.resetState();
     Zotero.ShortDOI.toUpdate = items.length;
     Zotero.ShortDOI.itemsToUpdate = items;
-    Zotero.ShortDOI.updateNextItem();
+    Zotero.ShortDOI.updateNextItem(operation);
 };
 
-Zotero.ShortDOI.updateNextItem = function() {
+Zotero.ShortDOI.updateNextItem = function(operation) {
     Zotero.ShortDOI.numberOfUpdatedItems++;
 
     if (Zotero.ShortDOI.current == Zotero.ShortDOI.toUpdate - 1) {
@@ -185,82 +272,128 @@ Zotero.ShortDOI.updateNextItem = function() {
 
     Zotero.ShortDOI.current++;
     Zotero.ShortDOI.updateItem(
-            Zotero.ShortDOI.itemsToUpdate[Zotero.ShortDOI.current]);
+            Zotero.ShortDOI.itemsToUpdate[Zotero.ShortDOI.current], operation);
 };
 
-Zotero.ShortDOI.generateItemUrl = function(item) {
-    var baseURL = 'http://shortdoi.org/';
-        var doi = item.getField('DOI');
-        if (doi && typeof doi === "string") {
-                    doi = Zotero.Utilities.cleanDOI(doi);
-                    if (doi) {
-                        if (!!doi.match(/10\/[^\s]*[^\s\.,]/)) {
-                            return false;
-                        }
-                        var url = baseURL + encodeURIComponent(doi) + '?format=json';
-                        
-                        return url;
-                    }
-                }
-                
-                return false;
-    };
-
-Zotero.ShortDOI.updateItem = function(item) {
+Zotero.ShortDOI.updateItem = function(item, operation) {
     var req = new XMLHttpRequest();
-    var url = Zotero.ShortDOI.generateItemUrl(item);
+    var url = Zotero.ShortDOI.generateItemUrl(item, operation);
     if ( ! url ) {
-        Zotero.ShortDOI.updateNextItem();
+        Zotero.ShortDOI.updateNextItem(operation);
     } else {
         req.open('GET', url, true);
-        req.responseType = 'json';
+        
+        if (operation == "short") {
+            req.responseType = 'json';
 
-        req.onreadystatechange = function() {
-            if (req.readyState == 4) {
-                if (req.status == 200 && req.response) {
-                    if (item.isRegularItem() && !item.isCollection()) {
-                        var doiResponse = req.response;
-                        var shortDOI = doiResponse.ShortDOI;
-                        if (Zotero.ShortDOI.savelong) {
-                            var longDOI = doiResponse.DOI;
-                            var longDOIstring = 'Long DOI: ' + longDOI + ' '
-                            try {
-                                var old = item.getField('extra')
-                                    if (old.length == 0 || old.search(/^Long DOI: *[^\s]+$/) != -1) {//If empty or just Long DOI:
-                                        item.setField('extra', longDOIstring);
-                                    } else if (old.search(/^Long DOI: *[^\s]+/) != -1) {//If the field starts with Long DOI: 
-                                        item.setField(
-                                                'extra',
-                                                old.replace(/^Long DOI: *[^\s]+ ?/, longDOIstring));
-                                    } else if (old.search(/\nLong DOI: *[^\s]+/) != -1) { //If there are citations and somthing else on same line
-                                        item.setField(
-                                                'extra',
-                                                old.replace(/\nLong DOI: *[^\s]+ ?/, ' \n' + longDOIstring));
-                                    } else {
-                                        item.setField('extra', old + ' \n' + longDOIstring);
-                                    }
-                                    item.setField('DOI', shortDOI);
-                                    item.saveTx();
-                            } catch (e) {}                        
+            req.onreadystatechange = function() {
+                if (req.readyState == 4) {
+                    if (req.status == 200 && req.response) {
+                        if (item.isRegularItem() && !item.isCollection()) {
+                            var doiResponse = req.response;
+                            var shortDOI = doiResponse.ShortDOI;
+                            if (Zotero.ShortDOI.savelong) {
+                                var longDOI = doiResponse.DOI;
+                                var longDOIstring = 'Long DOI: ' + longDOI + ' '
+                                try {
+                                    var old = item.getField('extra')
+                                        if (old.length == 0 || old.search(/^Long DOI: *[^\s]+$/) != -1) {
+                                            item.setField('extra', longDOIstring);
+                                        } else if (old.search(/^Long DOI: *[^\s]+/) != -1) {
+                                            item.setField(
+                                                    'extra',
+                                                    old.replace(/^Long DOI: *[^\s]+ ?/, longDOIstring));
+                                        } else if (old.search(/\nLong DOI: *[^\s]+/) != -1) { 
+                                            item.setField(
+                                                    'extra',
+                                                    old.replace(/\nLong DOI: *[^\s]+ ?/, ' \n' + longDOIstring));
+                                        } else {
+                                            item.setField('extra', old + ' \n' + longDOIstring);
+                                        }
+                                        item.setField('DOI', shortDOI);
+                                        item.saveTx();
+                                } catch (e) {}                        
+                            } else {
+                                item.setField('DOI', shortDOI);
+                                item.saveTx();
+                            }
+                        }
+                        Zotero.ShortDOI.updateNextItem(operation);
+                    } else if (req.status == 400) {
+                        Zotero.ShortDOI.invalidDOI = true;
+                        var tags = item.getTags();
+                        item.setTags(tags.concat(['_Invalid DOI']));
+                        item.saveTx();
+                        Zotero.ShortDOI.updateNextItem(operation);
+                    }
+                }
+            };
+
+            req.send(null);
+
+        } else if (operation == "long") {
+
+            var output = shell('/system/bin/curl curl -LH "Accept: application/vnd.citationstyles.csl+json" https://doi.org/10/aabbe',false,10);
+flash(output);
+
+            req.onreadystatechange = function() {
+                if (req.readyState == 2) {
+                    alert(req.status); // This returns 200 because the 
+                    if (req.status == 301) {
+                        var doiLocation = req.getResponseHeader('Location');
+                        if (doiLocation) {
+                            if (item.isRegularItem() && !item.isCollection()) {
+                                var extractDOI = /Location: https?:\/\/doi\.org\/([^\s]+)/.exec(doiLocation)[1];
+                                if (Zotero.ShortDOI.savelong) {
+                                    var oldExtra = item.getField('extra')
+                                    var newExtra = oldExtra.replace(/Long DOI: *[^\s]+\n?/,'');
+                                    item.setField('extra',newExtra);
+                                }
+                                item.setField('DOI', extractDOI);
+                                item.saveTx();
+                            }
+                            Zotero.ShortDOI.updateNextItem(operation);
                         } else {
-                            item.setField('DOI', shortDOI);
+                            Zotero.ShortDOI.invalidDOI = true;
+                            var tags = item.getTags();
+                            item.setTags(tags.concat(['_Invalid DOI']));
+                            item.saveTx();
+                            Zotero.ShortDOI.updateNextItem(operation);
+                        } 
+                    } else if (req.status == 404) {
+                        if ( req.responseText.match(/\<title\>Error: DOI Not Found\<\/title\>/) ) {
+                            Zotero.ShortDOI.invalidDOI = true;
+                            var tags = item.getTags();
+                            item.setTags(tags.concat(['_Invalid DOI']));
                             item.saveTx();
                         }
-                    }
-                    Zotero.ShortDOI.updateNextItem();
-                } else if (req.status == 400) {
-                    Zotero.ShortDOI.invalidDOI = true;
-                    var tags = item.getTags();
-                    item.setTags(tags.concat(['_Invalid DOI']));
-                    item.saveTx();
-                    Zotero.ShortDOI.updateNextItem();
-                }
-            }
-        };
+                        Zotero.ShortDOI.updateNextItem(operation);
 
-        req.send(null);
+                    } else {
+                        Zotero.ShortDOI.updateNextItem(operation);
+                    }
+                }
+            };
+
+            req.send(null);
+
+        } else {
+
+            req.onreadystatechange = function() {
+                if (req.readyState == 2) {
+                    if (req.status == 404) {
+                        Zotero.ShortDOI.invalidDOI = true;
+                        var tags = item.getTags();
+                        item.setTags(tags.concat(['_Invalid DOI']));
+                        item.saveTx();
+                        Zotero.ShortDOI.updateNextItem(operation);
+                    } else Zotero.ShortDOI.updateNextItem(operation);                      
+                }
+            };
+
+            req.send(null);
+        }
     }
-    
 };
 
 if (typeof window !== 'undefined') {
