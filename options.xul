@@ -1,5 +1,7 @@
 <?xml version="1.0" ?>
+<!DOCTYPE window SYSTEM "chrome://zoteroshortdoi/locale/options.dtd">
 <vbox xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <!--setting pref="extensions.shortdoi.savelong" title="Store long DOI in Extra" type="bool"/ -->
-  <setting pref="extensions.shortdoi.autoshort" title="Automatically get shortDOIs on item import" type="bool"/>
+  <setting pref="extensions.shortdoi.autoshort" title="&options_extensions.shortdoi.autoshort.label;" type="bool"/>
 </vbox>
+

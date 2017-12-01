@@ -1,9 +1,5 @@
 <!ENTITY zotero.zoteroshortdoi.short.label "Get shortDOIs">
 <!ENTITY zotero.zoteroshortdoi.long.label "Get long DOIs">
-<!ENTITY zotero.zoteroshortdoi.check.label "Verify DOIs">
+<!ENTITY zotero.zoteroshortdoi.check.label "Verify and clean DOIs">
 <!ENTITY zotero.zoteroshortdoi.menu.label "Manage DOIs">
-<!ENTITY zotero.zoteroshortdoi.toolsmenu.label "DOI Manager">
-<!ENTITY zotero.zoteroshortdoi.toolsmenu.savelong.label "Store long DOI in Extra">
 <!ENTITY zotero.zoteroshortdoi.toolsmenu.autoshort.label "Get shortDOIs for new items">
-<!ENTITY zotero.zoteroshortdoi.options.savelong.label "Store long DOI in Extra">
-<!ENTITY zotero.zoteroshortdoi.options.autoshort.label "Automatically get shortDOIs on item import">
