@@ -9,6 +9,7 @@
     <script
         type="application/x-javascript"
         src="chrome://zoteroshortdoi/content/scripts/zoteroshortdoi.js"/>
+    <script src="chrome://zotero/content/include.js"/>
 
     <stringbundleset id="stringbundleset">
         <stringbundle
@@ -17,17 +18,51 @@
     </stringbundleset>
 
     <popup id="zotero-collectionmenu">
-        <menuitem
-            id="zotero-collectionmenu-zoteroshortdoi"
-            label="&zotero.zoteroshortdoi.update.label;"
-            oncommand="Zotero.ShortDOI.updateSelectedEntity()"/>
+        <menu id="zotero-collectionmenu-zoteroshortdoi-menu" label="&zotero.zoteroshortdoi.menu.label;">
+            <menupopup id="zotero-collectionmenu-zoteroshortdoi-menupopup">
+                <menuitem
+                    id="zotero-collectionmenu-zoteroshortdoi-short"
+                    label="&zotero.zoteroshortdoi.short.label;"
+                    oncommand="Zotero.ShortDOI.updateSelectedItems('short')"/>
+                <menuitem
+                    id="zotero-collectionmenu-zoteroshortdoi-long"
+                    label="&zotero.zoteroshortdoi.long.label;"
+                    oncommand="Zotero.ShortDOI.updateSelectedItems('long')"/>
+                <menuitem
+                    id="zotero-collectionmenu-zoteroshortdoi-check"
+                    label="&zotero.zoteroshortdoi.check.label;"
+                    oncommand="Zotero.ShortDOI.updateSelectedItems('check')"/>
+            </menupopup>
+        </menu>
     </popup>
 
     <popup
         id="zotero-itemmenu">
-        <menuitem
-            id="zotero-itemmenu-zoteroshortdoi"
-            label="&zotero.zoteroshortdoi.update.label;"
-            oncommand="Zotero.ShortDOI.updateSelectedItems()"/>
+        <menu id="zotero-itemmenu-zoteroshortdoi-menu" label="&zotero.zoteroshortdoi.menu.label;">
+            <menupopup id="zotero-itemmenu-zoteroshortdoi-menupopup">
+                <menuitem
+                    id="zotero-itemmenu-zoteroshortdoi-short"
+                    label="&zotero.zoteroshortdoi.short.label;"
+                    oncommand="Zotero.ShortDOI.updateSelectedItems('short')"/>
+                <menuitem
+                    id="zotero-itemmenu-zoteroshortdoi-long"
+                    label="&zotero.zoteroshortdoi.long.label;"
+                    oncommand="Zotero.ShortDOI.updateSelectedItems('long')"/>
+                <menuitem
+                    id="zotero-itemmenu-zoteroshortdoi-check"
+                    label="&zotero.zoteroshortdoi.check.label;"
+                    oncommand="Zotero.ShortDOI.updateSelectedItems('check')"/>
+            </menupopup>
+        </menu>
     </popup>
+
+    <menupopup
+        id="menu_ToolsPopup" onpopupshowing="Zotero.ShortDOI.setCheck();"> 
+        <menuitem 
+            id="zoteroshortdoi-options-autoshort"
+            label="&zotero.zoteroshortdoi.toolsmenu.autoshort.label;"
+            type="checkbox"
+            oncommand="Zotero.ShortDOI.changePref()"/>
+    </menupopup>
+
 </overlay>
