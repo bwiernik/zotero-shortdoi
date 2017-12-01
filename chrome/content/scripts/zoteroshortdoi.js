@@ -394,10 +394,11 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
 
         } else if (operation == "clean") {
             
-            var oldExtra = item.getField('extra')
+            var oldExtra = item.getField('extra');
             var newExtra = oldExtra.replace(/Long DOI: *[^\s]+\n?/,'');
             item.setField('extra',newExtra);
             item.saveTx();
+            Zotero.ShortDOI.updateNextItem(operation);
 
         } else {
 
