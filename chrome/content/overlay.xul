@@ -56,4 +56,13 @@
         </menu>
     </popup>
 
+    <menupopup
+        id="menu_ToolsPopup" onpopupshowing="Zotero.ShortDOI.setCheck();"> 
+        <menuitem 
+            id="zoteroshortdoi-options-autoshort"
+            label="&zotero.zoteroshortdoi.toolsmenu.autoshort.label;"
+            type="checkbox"
+            oncommand="Zotero.ShortDOI.changePref()"/>
+    </menupopup>
+
 </overlay>

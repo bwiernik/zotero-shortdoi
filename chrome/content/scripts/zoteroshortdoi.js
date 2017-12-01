@@ -9,8 +9,8 @@ Zotero.ShortDOI = {};
 
 const PREF_BRANCH = 'extensions.shortdoi.';
 const PREFS = {
-    autoshort: true,
-    savelong: true,
+    //savelong: true,
+    autoshort: true    
 };
 
 // Preference managers
@@ -86,7 +86,7 @@ var prefObserver = {
 
   observe: function(aSubject, aTopic, aData) {
     switch (aData) {
-      case "savelong": Zotero.ShortDOI.savelong = getPref("savelong");
+      //case "savelong": Zotero.ShortDOI.savelong = getPref("savelong");
       case "autoshort": {
         Zotero.ShortDOI.autoshort = getPref("autoshort");
         if (Zotero.ShortDOI.autoshort) {
@@ -118,7 +118,7 @@ Zotero.ShortDOI.init = function() {
         }
 
     prefObserver.register();
-    Zotero.ShortDOI.savelong = getPref("savelong")
+    //Zotero.ShortDOI.savelong = getPref("savelong")
     Zotero.ShortDOI.autoshort = getPref("autoshort")
 
     // Unregister callback when the window closes (important to avoid a memory leak)
@@ -135,6 +135,23 @@ Zotero.ShortDOI.notifierCallback = {
             Zotero.ShortDOI.updateItems(Zotero.Items.get(ids));
         }
     }
+};
+
+// Controls for Tools menu
+
+// *********** Set the checkbox checks, frompref
+Zotero.ShortDOI.setCheck = function() {
+    var autoshortCheck = document.getElementById("zoteroshortdoi-options-autoshort");
+    autoshortvalue = getPref("autoshort");
+    autoshortCheck.setAttribute("checked", Boolean(autoshortvalue));
+};
+
+// *********** Change the checkbox, topref
+Zotero.ShortDOI.changePref = function changePref() {
+    var autoshortCheck = document.getElementById("zoteroshortdoi-options-autoshort");
+    autoshortvalue = getPref("autoshort");
+    var autoshortvalue = !autoshortvalue;
+    setPref("autoshort", Boolean(autoshortvalue));
 };
 
 
@@ -292,6 +309,7 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
                         if (item.isRegularItem() && !item.isCollection()) {
                             var doiResponse = req.response;
                             var shortDOI = doiResponse.ShortDOI;
+                            /*
                             if (Zotero.ShortDOI.savelong) {
                                 var longDOI = doiResponse.DOI;
                                 var longDOIstring = 'Long DOI: ' + longDOI + ' '
@@ -310,13 +328,12 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
                                         } else {
                                             item.setField('extra', old + ' \n' + longDOIstring);
                                         }
-                                        item.setField('DOI', shortDOI);
-                                        item.saveTx();
+                                        
                                 } catch (e) {}                        
-                            } else {
-                                item.setField('DOI', shortDOI);
-                                item.saveTx();
                             }
+                            */
+                            item.setField('DOI', shortDOI);
+                            item.saveTx();
                         }
                         Zotero.ShortDOI.updateNextItem(operation);
                     } else if (req.status == 400) {
@@ -332,24 +349,22 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
             req.send(null);
 
         } else if (operation == "long") {
+            req.setRequestHeader('Accept', 'application/vnd.citationstyles.csl+json');
 
-            var output = shell('/system/bin/curl curl -LH "Accept: application/vnd.citationstyles.csl+json" https://doi.org/10/aabbe',false,10);
-flash(output);
-
-            req.onreadystatechange = function() {
-                if (req.readyState == 2) {
-                    alert(req.status); // This returns 200 because the 
-                    if (req.status == 301) {
-                        var doiLocation = req.getResponseHeader('Location');
-                        if (doiLocation) {
+            req.onreadystatechange = function() { 
+                if (req.readyState == 4) {
+                    if (req.status == 200) {
+                        var longDOI = /http:\/\/dx\.doi\.org\/([^\s]+)\>/.exec(req.getResponseHeader('Link'))[1];
+                        if (longDOI) {
                             if (item.isRegularItem() && !item.isCollection()) {
-                                var extractDOI = /Location: https?:\/\/doi\.org\/([^\s]+)/.exec(doiLocation)[1];
+                                /*
                                 if (Zotero.ShortDOI.savelong) {
                                     var oldExtra = item.getField('extra')
                                     var newExtra = oldExtra.replace(/Long DOI: *[^\s]+\n?/,'');
                                     item.setField('extra',newExtra);
                                 }
-                                item.setField('DOI', extractDOI);
+                                */
+                                item.setField('DOI', longDOI);
                                 item.saveTx();
                             }
                             Zotero.ShortDOI.updateNextItem(operation);
