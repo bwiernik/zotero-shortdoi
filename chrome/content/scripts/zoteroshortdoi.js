@@ -392,6 +392,13 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
 
             req.send(null);
 
+        } else if (operation == "clean") {
+            
+            var oldExtra = item.getField('extra')
+            var newExtra = oldExtra.replace(/Long DOI: *[^\s]+\n?/,'');
+            item.setField('extra',newExtra);
+            item.saveTx();
+
         } else {
 
             req.onreadystatechange = function() {

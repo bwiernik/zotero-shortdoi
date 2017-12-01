@@ -52,6 +52,10 @@
                     id="zotero-itemmenu-zoteroshortdoi-check"
                     label="&zotero.zoteroshortdoi.check.label;"
                     oncommand="Zotero.ShortDOI.updateSelectedItems('check')"/>
+                <menuitem
+                    id="zotero-itemmenu-zoteroshortdoi-clean"
+                    label="Clean Extra of Long DOI cruft"
+                    oncommand="Zotero.ShortDOI.updateSelectedItems('clean')"/>
             </menupopup>
         </menu>
     </popup>
