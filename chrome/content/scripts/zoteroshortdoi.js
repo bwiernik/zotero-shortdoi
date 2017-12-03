@@ -86,18 +86,9 @@ var prefObserver = {
 
   observe: function(aSubject, aTopic, aData) {
     switch (aData) {
-      //case "savelong": Zotero.ShortDOI.savelong = getPref("savelong");
       case "autoshort": {
         Zotero.ShortDOI.autoshort = getPref("autoshort");
-        if (Zotero.ShortDOI.autoshort) {
-            // Register the callback in Zotero as an item observer
-            var notifierID = Zotero.Notifier.registerObserver(
-            Zotero.ShortDOI.notifierCallback, ['item']);
-        } else {
-            // Unregister the callback in Zotero as an item observer
-            Zotero.Notifier.unregisterObserver(notifierID);
-        }
-      } 
+      }
       break;
     }
   }
@@ -107,18 +98,20 @@ var prefObserver = {
 
 Zotero.ShortDOI.init = function() {
     setDefaultPrefs();
-    Zotero.ShortDOI.resetState();
+    Zotero.ShortDOI.resetState("initial");
 
-    stringBundle = document.getElementById('zoteroshortdoi-bundle');
+    /*stringBundle = document.getElementById('zoteroshortdoi-bundle');
     Zotero.ShortDOI.invalidDOIString = 'Invalid DOI';
     Zotero.ShortDOI.invalidDOITagString = 'Invalid DOIs were found. These have been tagged with _Invalid DOI.';
-        if (stringBundle != null) {
-            Zotero.ShortDOI.invalidDOIString = stringBundle.getString('invalidDOIString');
-            Zotero.ShortDOI.invalidDOITagString = stringBundle.getString('invalidDOITagString');
-        }
+    if (stringBundle != null) {
+        Zotero.ShortDOI.invalidDOIString = stringBundle.getString('invalidDOIString');
+        Zotero.ShortDOI.invalidDOITagString = stringBundle.getString('invalidDOITagString');
+    }*/
 
+    // Register the callback in Zotero as an item observer
+    var notifierID = Zotero.Notifier.registerObserver(
+        Zotero.ShortDOI.notifierCallback, ['item']);
     prefObserver.register();
-    //Zotero.ShortDOI.savelong = getPref("savelong")
     Zotero.ShortDOI.autoshort = getPref("autoshort");
 
     // Unregister callback when the window closes (important to avoid a memory leak)
@@ -132,7 +125,7 @@ Zotero.ShortDOI.init = function() {
 Zotero.ShortDOI.notifierCallback = {
     notify: function(event, type, ids, extraData) {
         if (event == 'add') {
-            Zotero.ShortDOI.updateItems(Zotero.Items.get(ids));
+            Zotero.ShortDOI.updateItems(Zotero.Items.get(ids), "short");
         }
     }
 };
@@ -155,7 +148,8 @@ Zotero.ShortDOI.changePref = function changePref() {
 };
 
 
-Zotero.ShortDOI.resetState = function() {
+Zotero.ShortDOI.resetState = function(operation) {
+    /*
     if (Zotero.ShortDOI.invalidDOI) {
         var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
                             .getService(Components.interfaces.nsIPromptService);
@@ -166,11 +160,46 @@ Zotero.ShortDOI.resetState = function() {
 
         Zotero.ShortDOI.invalidDOI = null;
     }
+    */
+
+    if (operation == "initial") {
+        if (Zotero.ShortDOI.progressWindow) {
+            Zotero.ShortDOI.progressWindow.close();
+        }
+    } else {
+        if(Zotero.ShortDOI.invalidDOI) {
+            Zotero.ShortDOI.progressWindow.close();
+            var win = Services.wm.getMostRecentWindow("navigator:browser");
+            Zotero.ShortDOI.progressWindow = win.ZoteroPane.progressWindow;
+            Zotero.ShortDOI.progressWindow.changeHeadline("Invalid DOI", "chrome://zotero/skin/cross.png");
+            Zotero.ShortDOI.progressWindow.addLines("Invalid DOIs were found. These have been tagged with _Invalid DOI.", "chrome://zotero/skin/warning.png");
+            Zotero.ShortDOI.progressWindow.show();
+            Zotero.ShortDOI.progressWindow.startCloseTimer(8000);
+        } else {
+            var icon = "chrome://zotero/skin/tick.png";
+            Zotero.ShortDOI.progressWindow.close();
+            var win = Services.wm.getMostRecentWindow("navigator:browser");
+            Zotero.ShortDOI.progressWindow = win.ZoteroPane.progressWindow;
+            Zotero.ShortDOI.progressWindow.changeHeadline("Finished");
+            if (operation == "short") {
+                Zotero.ShortDOI.progressWindow.addLines("shortDOIs retrieved for "+Zotero.ShortDOI.counter+" items.",icon);
+            } else if (operation == "long") {
+                Zotero.ShortDOI.progressWindow.addLines("Long DOIs retrieved for "+Zotero.ShortDOI.counter+" items.",icon);
+            } else {
+                Zotero.ShortDOI.progressWindow.addLines("DOIs verified for "+Zotero.ShortDOI.counter+" items.",icon);
+            }
+            Zotero.ShortDOI.progressWindow.show();
+            Zotero.ShortDOI.progressWindow.startCloseTimer(4000);
+        }
+    }
     Zotero.ShortDOI.current = -1;
     Zotero.ShortDOI.toUpdate = 0;
     Zotero.ShortDOI.itemsToUpdate = null;
     Zotero.ShortDOI.numberOfUpdatedItems = 0;
+    Zotero.ShortDOI.counter = 0;
+    Zotero.ShortDOI.invalidDOI = null;
 };
+
 
 Zotero.ShortDOI.generateItemUrl = function(item, operation) {
     if (operation == "short") {
@@ -253,7 +282,7 @@ Zotero.ShortDOI.updateSelectedEntity = function(operation) {
         });
         Zotero.ShortDOI.updateItems(items, operation);
     } else {
-        Zotero.ShortDOI.resetState();
+        Zotero.ShortDOI.resetState(operation);
         return;
     }
 };
@@ -268,9 +297,21 @@ Zotero.ShortDOI.updateItems = function(items, operation) {
         return;
     }
 
-    Zotero.ShortDOI.resetState();
+    Zotero.ShortDOI.resetState("initial");
     Zotero.ShortDOI.toUpdate = items.length;
     Zotero.ShortDOI.itemsToUpdate = items;
+
+    // Progress Windows
+    var win = Services.wm.getMostRecentWindow("navigator:browser");
+    Zotero.ShortDOI.progressWindow = win.ZoteroPane.progressWindow;
+    if (operation == "short") {
+        Zotero.ShortDOI.progressWindow.addLines("Getting shortDOIs", "chrome://zotero/skin/toolbar-advanced-search.png");
+    } else if (operation == "long") {
+        Zotero.ShortDOI.progressWindow.addLines("Getting long DOIs", "chrome://zotero/skin/toolbar-advanced-search.png");
+    } else {
+        Zotero.ShortDOI.progressWindow.addLines("Validating DOIs and removing extra text", "chrome://zotero/skin/toolbar-advanced-search.png");
+    }
+
     Zotero.ShortDOI.updateNextItem(operation);
 };
 
@@ -278,11 +319,16 @@ Zotero.ShortDOI.updateNextItem = function(operation) {
     Zotero.ShortDOI.numberOfUpdatedItems++;
 
     if (Zotero.ShortDOI.current == Zotero.ShortDOI.toUpdate - 1) {
-        Zotero.ShortDOI.resetState();
+        Zotero.ShortDOI.resetState(operation);
         return;
     }
 
     Zotero.ShortDOI.current++;
+
+    // Progress Windows
+    Zotero.ShortDOI.progressWindow.changeHeadline("Item "+Zotero.ShortDOI.current+" of "+Zotero.ShortDOI.toUpdate);
+    Zotero.ShortDOI.progressWindow.show();
+    
     Zotero.ShortDOI.updateItem(
             Zotero.ShortDOI.itemsToUpdate[Zotero.ShortDOI.current], operation);
 };
@@ -293,7 +339,7 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
     if ( ! url ) {
         Zotero.ShortDOI.updateNextItem(operation);
     } else if (url == 'invalid') {
-        Zotero.ShortDOI.invalidate(operation);
+        Zotero.ShortDOI.invalidate(item, operation);
     } else {
         var oldDOI = item.getField('DOI');
         var req = new XMLHttpRequest();
@@ -314,7 +360,7 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
                                         item.saveTx();
                                     }
                                 } else {
-                                    Zotero.ShortDOI.invalidate(operation);
+                                    Zotero.ShortDOI.invalidate(item, operation);
                                 }
                             } else {
                                 var shortDOI = req.response.ShortDOI;
@@ -323,9 +369,10 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
                             }
                             
                         }
+                        Zotero.ShortDOI.counter++;
                         Zotero.ShortDOI.updateNextItem(operation);
                     } else if (req.status == 400 || req.status == 404) {
-                        Zotero.ShortDOI.invalidate(operation);
+                        Zotero.ShortDOI.invalidate(item, operation);
                     } else {
                         Zotero.ShortDOI.updateNextItem(operation);
                     }
@@ -354,15 +401,16 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
                                     item.setField('DOI', longDOI);
                                     item.saveTx();
                                 }
-                            }                            
+                            }
+                            Zotero.ShortDOI.counter++;                            
                             Zotero.ShortDOI.updateNextItem(operation);
 
                         } else {
-                            Zotero.ShortDOI.invalidate(operation);
+                            Zotero.ShortDOI.invalidate(item, operation);
                         }
 
                     } else if (req.status == 404) {
-                        Zotero.ShortDOI.invalidate(operation);
+                        Zotero.ShortDOI.invalidate(item, operation);
 
                     } else {
                         Zotero.ShortDOI.updateNextItem(operation);
@@ -377,20 +425,22 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
             req.onreadystatechange = function() {
                 if (req.readyState == 4) {
                     if (req.status == 404) {
-                        Zotero.ShortDOI.invalidate(operation);
+                        Zotero.ShortDOI.invalidate(item, operation);
                     } else if (req.status == 200) {
                         if (req.response.responseCode == 200) {
-                            Zotero.ShortDOI.invalidate(operation);
+                            Zotero.ShortDOI.invalidate(item, operation);
                         } else {
                             if (req.response.handle != oldDOI) {
                                 var newDOI = req.response.handle;
                                 item.setField('DOI', newDOI);
                                 item.saveTx();
                             }
+                            Zotero.ShortDOI.counter++;
                             Zotero.ShortDOI.updateNextItem(operation);   
                         }
 
                     } else {
+                        Zotero.ShortDOI.counter++;
                         Zotero.ShortDOI.updateNextItem(operation); 
                     }                  
                 }
@@ -401,7 +451,7 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
     }
 };
 
-Zotero.ShortDOI.invalidate = function(operation) {
+Zotero.ShortDOI.invalidate = function(item, operation) {
     if (item.isRegularItem() && !item.isCollection()) {
         Zotero.ShortDOI.invalidDOI = true;
         var tags = item.getTags();
