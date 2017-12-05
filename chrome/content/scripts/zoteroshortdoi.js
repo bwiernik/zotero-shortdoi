@@ -149,18 +149,6 @@ Zotero.ShortDOI.changePref = function changePref() {
 
 
 Zotero.ShortDOI.resetState = function(operation) {
-    /*
-    if (Zotero.ShortDOI.invalidDOI) {
-        var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                            .getService(Components.interfaces.nsIPromptService);
-                        
-        promptService.alert(window,
-            Zotero.ShortDOI.invalidDOIString,
-            Zotero.ShortDOI.invalidDOITagString);
-
-        Zotero.ShortDOI.invalidDOI = null;
-    }
-    */
 
     if (operation == "initial") {
         if (Zotero.ShortDOI.progressWindow) {
@@ -337,6 +325,10 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
     var url = Zotero.ShortDOI.generateItemUrl(item, operation);
 
     if ( ! url ) {
+        if (item.hasTag('_Invalid DOI')) {
+            item.removeTag('_Invalid DOI');
+            item.saveTx();
+        }
         Zotero.ShortDOI.updateNextItem(operation);
     } else if (url == 'invalid') {
         Zotero.ShortDOI.invalidate(item, operation);
@@ -357,6 +349,11 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
                                     if (req.response.handle != oldDOI) {
                                         var shortDOI = req.response.handle;
                                         item.setField('DOI', shortDOI);
+                                        item.removeTag('_Invalid DOI');
+                                        item.saveTx();
+                                        Zotero.ShortDOI.counter++;
+                                    } else if (item.hasTag('_Invalid DOI')) {
+                                        item.removeTag('_Invalid DOI');
                                         item.saveTx();
                                     }
                                 } else {
@@ -365,11 +362,12 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
                             } else {
                                 var shortDOI = req.response.ShortDOI;
                                 item.setField('DOI', shortDOI);
+                                item.removeTag('_Invalid DOI');
                                 item.saveTx();
+                                Zotero.ShortDOI.counter++;
                             }
                             
                         }
-                        Zotero.ShortDOI.counter++;
                         Zotero.ShortDOI.updateNextItem(operation);
                     } else if (req.status == 400 || req.status == 404) {
                         Zotero.ShortDOI.invalidate(item, operation);
@@ -393,16 +391,22 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
                                 if (item.isRegularItem() && !item.isCollection()) {
                                     var longDOI = req.response.values["1"].data.value;
                                     item.setField('DOI', longDOI);
+                                    item.removeTag('_Invalid DOI');
                                     item.saveTx();
+                                    Zotero.ShortDOI.counter++;
                                 }
                             } else {
                                 if (req.response.handle != oldDOI) {
                                     var longDOI = req.response.handle;
                                     item.setField('DOI', longDOI);
+                                    item.removeTag('_Invalid DOI');
+                                    item.saveTx();
+                                    Zotero.ShortDOI.counter++;
+                                } else if (item.hasTag('_Invalid DOI')) {
+                                    item.removeTag('_Invalid DOI');
                                     item.saveTx();
                                 }
-                            }
-                            Zotero.ShortDOI.counter++;                            
+                            }                            
                             Zotero.ShortDOI.updateNextItem(operation);
 
                         } else {
@@ -433,6 +437,10 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
                             if (req.response.handle != oldDOI) {
                                 var newDOI = req.response.handle;
                                 item.setField('DOI', newDOI);
+                                item.removeTag('_Invalid DOI');
+                                item.saveTx();
+                            } else if (item.hasTag('_Invalid DOI')) {
+                                item.removeTag('_Invalid DOI');
                                 item.saveTx();
                             }
                             Zotero.ShortDOI.counter++;
@@ -440,7 +448,6 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
                         }
 
                     } else {
-                        Zotero.ShortDOI.counter++;
                         Zotero.ShortDOI.updateNextItem(operation); 
                     }                  
                 }
@@ -454,8 +461,7 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
 Zotero.ShortDOI.invalidate = function(item, operation) {
     if (item.isRegularItem() && !item.isCollection()) {
         Zotero.ShortDOI.invalidDOI = true;
-        var tags = item.getTags();
-        item.setTags(tags.concat(['_Invalid DOI']));
+        item.addTag('_Invalid DOI');
         item.saveTx();
     }
     Zotero.ShortDOI.updateNextItem(operation);
