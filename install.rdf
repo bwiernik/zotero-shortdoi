@@ -12,7 +12,7 @@
         RDF:about="urn:mozilla:install-manifest"
         em:id="zoteroshortdoi@wiernik.org"
         em:name="Zotero DOI Manager"
-        em:version="1.1.2"
+        em:version="1.2.0"
         em:type="2"
         em:creator="Brenton M. Wiernik"
         em:description="Zotero plugin for validating DOI names and auto-fetching shortDOI names"

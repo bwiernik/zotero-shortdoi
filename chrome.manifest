@@ -3,3 +3,5 @@ content zoteroshortdoi chrome/content/
 overlay chrome://zotero/content/zoteroPane.xul chrome://zoteroshortdoi/content/overlay.xul
 
 locale  zoteroshortdoi  en-US   chrome/locale/en-US/
+
+skin    zoteroshortdoi  default chrome/skin/default/zoteroshortdoi/

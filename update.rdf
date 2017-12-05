@@ -5,13 +5,13 @@
       <rdf:Seq>
         <rdf:li>
           <rdf:Description>
-            <em:version>1.1.2</em:version>
+            <em:version>1.2.0</em:version>
             <em:targetApplication>
               <rdf:Description>
                 <em:id>zotero@chnm.gmu.edu</em:id>
                 <em:minVersion>5.0</em:minVersion>
                 <em:maxVersion>5.*</em:maxVersion>
-                <em:updateLink>https://github.com/bwiernik/zotero-shortdoi/releases/download/v1.1.2/zotero-shortdoi-1.1.2.xpi</em:updateLink>
+                <em:updateLink>https://github.com/bwiernik/zotero-shortdoi/releases/download/v1.2.0/zotero-shortdoi-1.2.0.xpi</em:updateLink>
               </rdf:Description>
             </em:targetApplication>
             <em:targetApplication>
@@ -19,7 +19,7 @@
                 <em:id>juris-m@juris-m.github.io</em:id>
                 <em:minVersion>5.0</em:minVersion>
                 <em:maxVersion>5.*</em:maxVersion>
-                <em:updateLink>https://github.com/bwiernik/zotero-shortdoi/releases/download/v1.1.2/zotero-shortdoi-1.1.2.xpi</em:updateLink>
+                <em:updateLink>https://github.com/bwiernik/zotero-shortdoi/releases/download/v1.2.0/zotero-shortdoi-1.2.0.xpi</em:updateLink>
               </rdf:Description>
             </em:targetApplication>
           </rdf:Description>

@@ -156,25 +156,26 @@ Zotero.ShortDOI.resetState = function(operation) {
         }
     } else {
         if(Zotero.ShortDOI.invalidDOI) {
-            Zotero.ShortDOI.progressWindow.close();
-            var win = Services.wm.getMostRecentWindow("navigator:browser");
-            Zotero.ShortDOI.progressWindow = win.ZoteroPane.progressWindow;
-            Zotero.ShortDOI.progressWindow.changeHeadline("Invalid DOI", "chrome://zotero/skin/cross.png");
-            Zotero.ShortDOI.progressWindow.addLines("Invalid DOIs were found. These have been tagged with _Invalid DOI.", "chrome://zotero/skin/warning.png");
+            var icon = "chrome://zotero/skin/cross.png";
+            Zotero.ShortDOI.progressWindow = new Zotero.ProgressWindow({closeOnClick:true});
+            Zotero.ShortDOI.progressWindow.changeHeadline("Invalid DOI");
+            Zotero.ShortDOI.progressWindow.progress = new Zotero.ShortDOI.progressWindow.ItemProgress(icon, "Invalid DOIs were found. These have been tagged with _Invalid DOI.");
+            Zotero.ShortDOI.progressWindow.progress.setError();
+            //Zotero.ShortDOI.progressWindow.progress.setIcon(icon);
             Zotero.ShortDOI.progressWindow.show();
             Zotero.ShortDOI.progressWindow.startCloseTimer(8000);
         } else {
             var icon = "chrome://zotero/skin/tick.png";
-            Zotero.ShortDOI.progressWindow.close();
-            var win = Services.wm.getMostRecentWindow("navigator:browser");
-            Zotero.ShortDOI.progressWindow = win.ZoteroPane.progressWindow;
+            Zotero.ShortDOI.progressWindow = new Zotero.ProgressWindow({closeOnClick:true});
             Zotero.ShortDOI.progressWindow.changeHeadline("Finished");
+            Zotero.ShortDOI.progressWindow.progress = new Zotero.ShortDOI.progressWindow.ItemProgress(icon);
+            Zotero.ShortDOI.progressWindow.progress.setProgress(100);
             if (operation == "short") {
-                Zotero.ShortDOI.progressWindow.addLines("shortDOIs retrieved for "+Zotero.ShortDOI.counter+" items.",icon);
+                Zotero.ShortDOI.progressWindow.progress.setText("shortDOIs updated for "+Zotero.ShortDOI.counter+" items.");
             } else if (operation == "long") {
-                Zotero.ShortDOI.progressWindow.addLines("Long DOIs retrieved for "+Zotero.ShortDOI.counter+" items.",icon);
+                Zotero.ShortDOI.progressWindow.progress.setText("Long DOIs updated for "+Zotero.ShortDOI.counter+" items.");
             } else {
-                Zotero.ShortDOI.progressWindow.addLines("DOIs verified for "+Zotero.ShortDOI.counter+" items.",icon);
+                Zotero.ShortDOI.progressWindow.progress.setText("DOIs verified for "+Zotero.ShortDOI.counter+" items.");
             }
             Zotero.ShortDOI.progressWindow.show();
             Zotero.ShortDOI.progressWindow.startCloseTimer(4000);
@@ -290,15 +291,19 @@ Zotero.ShortDOI.updateItems = function(items, operation) {
     Zotero.ShortDOI.itemsToUpdate = items;
 
     // Progress Windows
-    var win = Services.wm.getMostRecentWindow("navigator:browser");
-    Zotero.ShortDOI.progressWindow = win.ZoteroPane.progressWindow;
+    Zotero.ShortDOI.progressWindow = new Zotero.ProgressWindow({closeOnClick: false});
+    var icon = 'chrome://zotero/skin/toolbar-advanced-search' + (Zotero.hiDPI ? "@2x" : "") + '.png';
+    //var icon = "chrome://zotero/skin/toolbar-advanced-search.png";
     if (operation == "short") {
-        Zotero.ShortDOI.progressWindow.addLines("Getting shortDOIs", "chrome://zotero/skin/toolbar-advanced-search.png");
+        Zotero.ShortDOI.progressWindow.changeHeadline("Getting shortDOIs", icon);
     } else if (operation == "long") {
-        Zotero.ShortDOI.progressWindow.addLines("Getting long DOIs", "chrome://zotero/skin/toolbar-advanced-search.png");
+        Zotero.ShortDOI.progressWindow.changeHeadline("Getting long DOIs", icon);
     } else {
-        Zotero.ShortDOI.progressWindow.addLines("Validating DOIs and removing extra text", "chrome://zotero/skin/toolbar-advanced-search.png");
+        Zotero.ShortDOI.progressWindow.changeHeadline("Validating DOIs and removing extra text", icon);
     }
+    var doiIcon = 'chrome://zoteroshortdoi/skin/doi' + (Zotero.hiDPI ? "@2x" : "") + '.png';
+    //var doiIcon = 'chrome://zoteroshortdoi/skin/doi.png';
+    Zotero.ShortDOI.progressWindow.progress = new Zotero.ShortDOI.progressWindow.ItemProgress(doiIcon, "Checking DOIs.");
 
     Zotero.ShortDOI.updateNextItem(operation);
 };
@@ -307,6 +312,7 @@ Zotero.ShortDOI.updateNextItem = function(operation) {
     Zotero.ShortDOI.numberOfUpdatedItems++;
 
     if (Zotero.ShortDOI.current == Zotero.ShortDOI.toUpdate - 1) {
+        Zotero.ShortDOI.progressWindow.close();
         Zotero.ShortDOI.resetState(operation);
         return;
     }
@@ -314,7 +320,9 @@ Zotero.ShortDOI.updateNextItem = function(operation) {
     Zotero.ShortDOI.current++;
 
     // Progress Windows
-    Zotero.ShortDOI.progressWindow.changeHeadline("Item "+Zotero.ShortDOI.current+" of "+Zotero.ShortDOI.toUpdate);
+    var percent = Math.round((Zotero.ShortDOI.numberOfUpdatedItems/Zotero.ShortDOI.toUpdate)*100);
+    Zotero.ShortDOI.progressWindow.progress.setProgress(percent);
+    Zotero.ShortDOI.progressWindow.progress.setText("Item "+Zotero.ShortDOI.current+" of "+Zotero.ShortDOI.toUpdate);
     Zotero.ShortDOI.progressWindow.show();
     
     Zotero.ShortDOI.updateItem(
