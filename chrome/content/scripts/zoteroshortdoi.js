@@ -125,7 +125,9 @@ Zotero.ShortDOI.init = function() {
 Zotero.ShortDOI.notifierCallback = {
     notify: function(event, type, ids, extraData) {
         if (event == 'add') {
+          if (Zotero.ShortDOI.autoshort) {
             Zotero.ShortDOI.updateItems(Zotero.Items.get(ids), "short");
+          }
         }
     }
 };
@@ -281,6 +283,9 @@ Zotero.ShortDOI.updateSelectedItems = function(operation) {
 };
 
 Zotero.ShortDOI.updateItems = function(items, operation) {
+    // For now, filter out non-journal article items
+    var items = items.filter(item => item.itemTypeID == Zotero.ItemTypes.getID('journalArticle'));
+
     if (items.length === 0 ||
             Zotero.ShortDOI.numberOfUpdatedItems < Zotero.ShortDOI.toUpdate) {
         return;
