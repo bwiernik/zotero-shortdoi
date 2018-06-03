@@ -220,11 +220,11 @@ Zotero.ShortDOI.resetState = function(operation) {
 Zotero.ShortDOI.generateItemUrl = function(item, operation) {
     var doi = item.getField('DOI');
     if (! doi) {
-        var doi = Zotero.ShortDOI.crossrefLookup(item, operation);
-
+        doi = Zotero.ShortDOI.crossrefLookup(item, operation);
     } else {
+
         if (typeof doi === "string") {
-            var doi = Zotero.Utilities.cleanDOI(doi);
+            doi = Zotero.Utilities.cleanDOI(doi);
             if (doi) {
                 if (operation === "short" && ! doi.match(/10\/[^\s]*[^\s\.,]/)) {
                     var url = 'http://shortdoi.org/' + encodeURIComponent(doi) + '?format=json';
@@ -265,7 +265,7 @@ Zotero.ShortDOI.crossrefLookup = function(item, operation) {
                   if (status === "resolved") {
                       var doi = response.getElementsByTagName("doi")[0].childNodes[0].nodeValue;
                       if (operation === "short") {
-                          //return doi;    // Not sure why this isn't working...
+                          //return doi;    // Need to promisfy to be able to simply use return()
                           item.setField('DOI', doi);
                           Zotero.ShortDOI.updateItem(item, operation);
 
