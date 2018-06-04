@@ -165,7 +165,6 @@ Zotero.ShortDOI.resetState = function(operation) {
                 Zotero.ShortDOI.progressWindowInvalid.changeHeadline("Invalid DOI");
                 Zotero.ShortDOI.progressWindowInvalid.progress = new Zotero.ShortDOI.progressWindowInvalid.ItemProgress(icon, "Invalid DOIs were found. These have been tagged with '_Invalid DOI'.");
                 Zotero.ShortDOI.progressWindowInvalid.progress.setError();
-                //Zotero.ShortDOI.progressWindow.progress.setIcon(icon);
                 Zotero.ShortDOI.progressWindowInvalid.show();
                 Zotero.ShortDOI.progressWindowInvalid.startCloseTimer(8000);
             }
@@ -174,16 +173,14 @@ Zotero.ShortDOI.resetState = function(operation) {
                 Zotero.ShortDOI.progressWindowLookup.changeHeadline("DOI not found");
                 Zotero.ShortDOI.progressWindowLookup.progress = new Zotero.ShortDOI.progressWindowLookup.ItemProgress(icon, "No DOI was found for some items. These have been tagged with '_No DOI found'.");
                 Zotero.ShortDOI.progressWindowLookup.progress.setError();
-                //Zotero.ShortDOI.progressWindow.progress.setIcon(icon);
                 Zotero.ShortDOI.progressWindowLookup.show();
                 Zotero.ShortDOI.progressWindowLookup.startCloseTimer(8000);
             }
             if(Zotero.ShortDOI.multiLookup) {
                 Zotero.ShortDOI.progressWindowMulti = new Zotero.ProgressWindow({closeOnClick:true});
                 Zotero.ShortDOI.progressWindowMulti.changeHeadline("Multiple possible DOIs");
-                Zotero.ShortDOI.progressWindowMulti.progress = new Zotero.ShortDOI.progressWindowMulti.ItemProgress(icon, "Some items yielded multiple possible DOIs. Links to pages listing possible DOIs have been added and tagged with '_Multiple DOI'.");
+                Zotero.ShortDOI.progressWindowMulti.progress = new Zotero.ShortDOI.progressWindowMulti.ItemProgress(icon, "Some items had multiple possible DOIs. Links to lists of DOIs have been added and tagged with '_Multiple DOI'.");
                 Zotero.ShortDOI.progressWindow.progress.setError();
-                //Zotero.ShortDOI.progressWindow.progress.setIcon(icon);
                 Zotero.ShortDOI.progressWindow.show();
                 Zotero.ShortDOI.progressWindow.startCloseTimer(8000);
             }
@@ -242,83 +239,6 @@ Zotero.ShortDOI.generateItemUrl = function(item, operation) {
           } else {
               return "invalid";
           }
-    }
-
-    return false;
-
-};
-
-Zotero.ShortDOI.crossrefLookup = function(item, operation) {
-  var crossrefOpenURL = 'https://www.crossref.org/openurl?pid=zoteroDOI@wiernik.org&';
-  var ctx = Zotero.OpenURL.createContextObject(item, "1.0");
-  if (ctx) {
-      var url = crossrefOpenURL + ctx + '&multihit=true';
-      var req = new XMLHttpRequest();
-      req.open('GET', url, true);
-      // req.responseType = 'json';
-
-      req.onreadystatechange = function() {
-          if (req.readyState == 4) {
-              if (req.status == 200) {
-                  var response = req.responseXML.getElementsByTagName("query")[0];
-                  var status = response.getAttribute('status')
-                  if (status === "resolved") {
-                      var doi = response.getElementsByTagName("doi")[0].childNodes[0].nodeValue;
-                      if (operation === "short") {
-                          //return doi;    // Need to promisfy to be able to simply use return()
-                          item.setField('DOI', doi);
-                          Zotero.ShortDOI.updateItem(item, operation);
-
-                      } else {
-                          item.setField('DOI', doi);
-                          item.removeTag('_Invalid DOI');
-                          item.removeTag('_Multiple DOI');
-                          item.removeTag('_No DOI found');
-                          item.saveTx();
-                          Zotero.ShortDOI.counter++;
-                          Zotero.ShortDOI.updateNextItem(operation);
-                      }
-
-
-                  } else if (status === "unresolved") {
-                      Zotero.ShortDOI.lookupFailure = true;
-                      item.removeTag('_Invalid DOI');
-                      item.removeTag('_Multiple DOI');
-                      item.removeTag('_No DOI found');
-                      item.addTag('_No DOI found');
-                      item.saveTx();
-                      Zotero.ShortDOI.updateNextItem(operation);
-
-                  } else if (status === "multiresolved") {
-                      Zotero.ShortDOI.multiLookup = true;
-                      if (item.hasTag('_Invalid DOI') || item.hasTag('_No DOI found')) {
-                          item.removeTag('_Invalid DOI');
-                          item.removeTag('_No DOI found');
-                      }
-                      // TODO: Move this tag to the attachment link
-                      attachmentItem.addTag('_Multiple DOI');
-                      item.saveTx();
-
-                      // Create a new attachment
-                      var userUrl = crossrefOpenURL + ctx;
-                      var attachmentItem = Zotero.Attachments.linkFromURL({"url":userUrl, "parentItemID":item.id, "contentType":"text/html", "title":"Multiple DOIs found"})
-                      attachmentItem.saveTx();
-                      Zotero.ShortDOI.updateNextItem(operation);
-
-                  } else {
-                      Zotero.debug("Zotero DOI Manager: CrossRef lookup: Unknown status code: " + status);
-                      Zotero.ShortDOI.updateNextItem(operation);
-                  }
-
-              } else {
-                  Zotero.ShortDOI.updateNextItem(operation);
-              }
-
-          }
-      };
-
-      req.send(null);
-
     }
 
     return false;
@@ -581,3 +501,76 @@ if (typeof window !== 'undefined') {
         Zotero.ShortDOI.init();
     }, false);
 }
+
+Zotero.ShortDOI.crossrefLookup = function(item, operation) {
+  var crossrefOpenURL = 'https://www.crossref.org/openurl?pid=zoteroDOI@wiernik.org&';
+  var ctx = Zotero.OpenURL.createContextObject(item, "1.0");
+  if (ctx) {
+      var url = crossrefOpenURL + ctx + '&multihit=true';
+      var req = new XMLHttpRequest();
+      req.open('GET', url, true);
+      // req.responseType = 'json';
+
+      req.onreadystatechange = function() {
+          if (req.readyState == 4) {
+              if (req.status == 200) {
+                  var response = req.responseXML.getElementsByTagName("query")[0];
+                  var status = response.getAttribute('status')
+                  if (status === "resolved") {
+                      var doi = response.getElementsByTagName("doi")[0].childNodes[0].nodeValue;
+                      if (operation === "short") {
+                          //return doi;    // Need to promisfy to be able to simply use return()
+                          item.setField('DOI', doi);
+                          Zotero.ShortDOI.updateItem(item, operation);
+
+                      } else {
+                          item.setField('DOI', doi);
+                          item.removeTag('_Invalid DOI');
+                          item.removeTag('_Multiple DOI');
+                          item.removeTag('_No DOI found');
+                          item.saveTx();
+                          Zotero.ShortDOI.counter++;
+                          Zotero.ShortDOI.updateNextItem(operation);
+                      }
+
+
+                  } else if (status === "unresolved") {
+                      Zotero.ShortDOI.lookupFailure = true;
+                      item.removeTag('_Invalid DOI');
+                      item.removeTag('_Multiple DOI');
+                      item.removeTag('_No DOI found');
+                      item.addTag('_No DOI found');
+                      item.saveTx();
+                      Zotero.ShortDOI.updateNextItem(operation);
+
+                  } else if (status === "multiresolved") {
+                      Zotero.ShortDOI.multiLookup = true;
+                      Zotero.Attachments.linkFromURL({"url":crossrefOpenURL + ctx, "parentItemID":item.id, "contentType":"text/html", "title":"Multiple DOIs found"});
+                      if (item.hasTag('_Invalid DOI') || item.hasTag('_No DOI found')) {
+                          item.removeTag('_Invalid DOI');
+                          item.removeTag('_No DOI found');
+                      }
+                      // TODO: Move this tag to the attachment link
+                      item.addTag('_Multiple DOI');
+                      item.saveTx();
+                      Zotero.ShortDOI.updateNextItem(operation);
+
+                  } else {
+                      Zotero.debug("Zotero DOI Manager: CrossRef lookup: Unknown status code: " + status);
+                      Zotero.ShortDOI.updateNextItem(operation);
+                  }
+
+              } else {
+                  Zotero.ShortDOI.updateNextItem(operation);
+              }
+
+          }
+      };
+
+      req.send(null);
+
+    }
+
+    return false;
+
+};
