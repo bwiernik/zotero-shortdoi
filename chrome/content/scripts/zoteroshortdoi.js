@@ -63,36 +63,7 @@ function setDefaultPrefs() {
   }
 }
 
-var prefObserver = {
-  register: function() {
-    var prefService = Components.classes["@mozilla.org/preferences-service;1"]
-                                .getService(Components.interfaces.nsIPrefService);
 
-    this.branch = prefService.getBranch(PREF_BRANCH);
-
-    // Now we queue the interface called nsIPrefBranch2. This interface is described as:
-    // "nsIPrefBranch2 allows clients to observe changes to pref values."
-    // This is only necessary prior to Gecko 13
-    if (!("addObserver" in this.branch))
-        this.branch.QueryInterface(Components.interfaces.nsIPrefBranch2);
-
-    // Finally add the observer.
-    this.branch.addObserver("", this, false);
-  },
-
-  unregister: function() {
-    this.branch.removeObserver("", this);
-  },
-
-  observe: function(aSubject, aTopic, aData) {
-    switch (aData) {
-      case "autoshort": {
-        Zotero.ShortDOI.autoshort = getPref("autoshort");
-      }
-      break;
-    }
-  }
-};
 
 // Startup - initialize plugin
 
@@ -100,24 +71,13 @@ Zotero.ShortDOI.init = function() {
     setDefaultPrefs();
     Zotero.ShortDOI.resetState("initial");
 
-    /*stringBundle = document.getElementById('zoteroshortdoi-bundle');
-    Zotero.ShortDOI.invalidDOIString = 'Invalid DOI';
-    Zotero.ShortDOI.invalidDOITagString = 'Invalid DOIs were found. These have been tagged with _Invalid DOI.';
-    if (stringBundle != null) {
-        Zotero.ShortDOI.invalidDOIString = stringBundle.getString('invalidDOIString');
-        Zotero.ShortDOI.invalidDOITagString = stringBundle.getString('invalidDOITagString');
-    }*/
-
     // Register the callback in Zotero as an item observer
     var notifierID = Zotero.Notifier.registerObserver(
         Zotero.ShortDOI.notifierCallback, ['item']);
-    prefObserver.register();
-    Zotero.ShortDOI.autoshort = getPref("autoshort");
 
     // Unregister callback when the window closes (important to avoid a memory leak)
     window.addEventListener('unload', function(e) {
         Zotero.Notifier.unregisterObserver(notifierID);
-        prefObserver.unregister();
     }, false);
 
 };
@@ -125,8 +85,13 @@ Zotero.ShortDOI.init = function() {
 Zotero.ShortDOI.notifierCallback = {
     notify: function(event, type, ids, extraData) {
         if (event == 'add') {
-          if (Zotero.ShortDOI.autoshort) {
-            Zotero.ShortDOI.updateItems(Zotero.Items.get(ids), "short");
+          if (getPref("autoshort")) {
+            var items = Zotero.Items.get(ids);
+            items = items.filter(item => item.itemTypeID == Zotero.ItemTypes.getID('journalArticle'));
+            if (items.length === 0 ) {
+                return;
+            }
+            Zotero.ShortDOI.updateItems(items, "short");
           }
         }
     }
@@ -545,7 +510,8 @@ Zotero.ShortDOI.crossrefLookup = function(item, operation) {
 
                   } else if (status === "multiresolved") {
                       Zotero.ShortDOI.multiLookup = true;
-                      Zotero.Attachments.linkFromURL({"url":crossrefOpenURL + ctx, "parentItemID":item.id, "contentType":"text/html", "title":"Multiple DOIs found"});
+                      var attachmentItem = Zotero.Attachments.linkFromURL({"url":crossrefOpenURL + ctx, "parentItemID":item.id, "contentType":"text/html", "title":"Multiple DOIs found"});
+                      attachmentItem.save();
                       if (item.hasTag('_Invalid DOI') || item.hasTag('_No DOI found')) {
                           item.removeTag('_Invalid DOI');
                           item.removeTag('_No DOI found');

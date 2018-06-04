@@ -1,0 +1,27 @@
+<?xml version="1.0" ?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<!DOCTYPE window SYSTEM "chrome://zotero/locale/zotero.dtd">
+
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	title="Progress" width="550" height="230"
+	id="zotero-progress">
+	<vbox style="padding:10px" flex="1">
+		<label id="label" control="progress-indicator" value=""/>
+		<hbox align="center">
+			<progressmeter id="progress-indicator" mode="determined" flex="1"/>
+			<button id="cancel-button" label="Cancel"/>
+			<button id="minimize-button" label="Minimize"/>
+			<button id="close-button" label="Close"/>
+		</hbox>
+		<tree flex="1" id="tree" hidecolumnpicker="true">
+			<treecols>
+				<treecol id="success-col" style="width:20px;"/>
+				<splitter class="tree-splitter" hidden="true"/>
+				<treecol label="Item Name" id="item-col" flex="1"/>
+				<splitter class="tree-splitter"/>
+				<treecol label="DOI" id="doi-col" flex="2"/>
+			</treecols>
+			<treechildren id="treechildren"/>
+		</tree>
+	</vbox>
+</window>
