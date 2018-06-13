@@ -102,7 +102,7 @@ Zotero.ShortDOI.init = function() {
 
     /*stringBundle = document.getElementById('zoteroshortdoi-bundle');
     Zotero.ShortDOI.invalidDOIString = 'Invalid DOI';
-    Zotero.ShortDOI.invalidDOITagString = 'Invalid DOIs were found. These have been tagged with _Invalid DOI.';
+    Zotero.ShortDOI.invalidDOITagString = 'Invalid DOIs were found. These have been tagged with \u26A0\uFE0FInvalid DOI.';
     if (stringBundle != null) {
         Zotero.ShortDOI.invalidDOIString = stringBundle.getString('invalidDOIString');
         Zotero.ShortDOI.invalidDOITagString = stringBundle.getString('invalidDOITagString');
@@ -163,7 +163,7 @@ Zotero.ShortDOI.resetState = function(operation) {
             if(Zotero.ShortDOI.invalidDOI) {
                 Zotero.ShortDOI.progressWindowInvalid = new Zotero.ProgressWindow({closeOnClick:true});
                 Zotero.ShortDOI.progressWindowInvalid.changeHeadline("Invalid DOI");
-                Zotero.ShortDOI.progressWindowInvalid.progress = new Zotero.ShortDOI.progressWindowInvalid.ItemProgress(icon, "Invalid DOIs were found. These have been tagged with '_Invalid DOI'.");
+                Zotero.ShortDOI.progressWindowInvalid.progress = new Zotero.ShortDOI.progressWindowInvalid.ItemProgress(icon, "Invalid DOIs were found. These have been tagged with '\u26A0\uFE0FInvalid DOI'.");
                 Zotero.ShortDOI.progressWindowInvalid.progress.setError();
                 Zotero.ShortDOI.progressWindowInvalid.show();
                 Zotero.ShortDOI.progressWindowInvalid.startCloseTimer(8000);
@@ -171,7 +171,7 @@ Zotero.ShortDOI.resetState = function(operation) {
             if(Zotero.ShortDOI.lookupFailure) {
                 Zotero.ShortDOI.progressWindowLookup = new Zotero.ProgressWindow({closeOnClick:true});
                 Zotero.ShortDOI.progressWindowLookup.changeHeadline("DOI not found");
-                Zotero.ShortDOI.progressWindowLookup.progress = new Zotero.ShortDOI.progressWindowLookup.ItemProgress(icon, "No DOI was found for some items. These have been tagged with '_No DOI found'.");
+                Zotero.ShortDOI.progressWindowLookup.progress = new Zotero.ShortDOI.progressWindowLookup.ItemProgress(icon, "No DOI was found for some items. These have been tagged with '\u{1F50D}No DOI found'.");
                 Zotero.ShortDOI.progressWindowLookup.progress.setError();
                 Zotero.ShortDOI.progressWindowLookup.show();
                 Zotero.ShortDOI.progressWindowLookup.startCloseTimer(8000);
@@ -179,10 +179,10 @@ Zotero.ShortDOI.resetState = function(operation) {
             if(Zotero.ShortDOI.multiLookup) {
                 Zotero.ShortDOI.progressWindowMulti = new Zotero.ProgressWindow({closeOnClick:true});
                 Zotero.ShortDOI.progressWindowMulti.changeHeadline("Multiple possible DOIs");
-                Zotero.ShortDOI.progressWindowMulti.progress = new Zotero.ShortDOI.progressWindowMulti.ItemProgress(icon, "Some items had multiple possible DOIs. Links to lists of DOIs have been added and tagged with '_Multiple DOI'.");
+                Zotero.ShortDOI.progressWindowMulti.progress = new Zotero.ShortDOI.progressWindowMulti.ItemProgress(icon, "Some items had multiple possible DOIs. Links to lists of DOIs have been added and tagged with '\u2753Multiple DOI'.");
                 Zotero.ShortDOI.progressWindow.progress.setError();
-                Zotero.ShortDOI.progressWindow.show();
-                Zotero.ShortDOI.progressWindow.startCloseTimer(8000);
+                Zotero.ShortDOI.progressWindowMulti.show();
+                Zotero.ShortDOI.progressWindowMulti.startCloseTimer(8000);
             }
 
         } else {
@@ -338,8 +338,8 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
     var url = Zotero.ShortDOI.generateItemUrl(item, operation);
 
     if ( ! url ) {
-        if (item.hasTag('_Invalid DOI')) {
-            item.removeTag('_Invalid DOI');
+        if (item.hasTag('\u26A0\uFE0FInvalid DOI')) {
+            item.removeTag('\u26A0\uFE0FInvalid DOI');
             item.saveTx();
         }
         Zotero.ShortDOI.updateNextItem(operation);
@@ -362,15 +362,15 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
                                     if (req.response.handle != oldDOI) {
                                         var shortDOI = req.response.handle;
                                         item.setField('DOI', shortDOI);
-                                        item.removeTag('_Invalid DOI');
-                                        item.removeTag('_Multiple DOI');
-                                        item.removeTag('_No DOI found');
+                                        item.removeTag('\u26A0\uFE0FInvalid DOI');
+                                        item.removeTag('\u2753Multiple DOI');
+                                        item.removeTag('\u{1F50D}No DOI found');
                                         item.saveTx();
                                         Zotero.ShortDOI.counter++;
-                                    } else if (item.hasTag('_Invalid DOI') || item.hasTag('_Multiple DOI') || item.hasTag('_No DOI found')) {
-                                        item.removeTag('_Invalid DOI');
-                                        item.removeTag('_Multiple DOI');
-                                        item.removeTag('_No DOI found');
+                                    } else if (item.hasTag('\u26A0\uFE0FInvalid DOI') || item.hasTag('\u2753Multiple DOI') || item.hasTag('\u{1F50D}No DOI found')) {
+                                        item.removeTag('\u26A0\uFE0FInvalid DOI');
+                                        item.removeTag('\u2753Multiple DOI');
+                                        item.removeTag('\u{1F50D}No DOI found');
                                         item.saveTx();
                                     }
                                 } else {
@@ -379,9 +379,9 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
                             } else {
                                 var shortDOI = req.response.ShortDOI;
                                 item.setField('DOI', shortDOI);
-                                item.removeTag('_Invalid DOI');
-                                item.removeTag('_Multiple DOI');
-                                item.removeTag('_No DOI found');
+                                item.removeTag('\u26A0\uFE0FInvalid DOI');
+                                item.removeTag('\u2753Multiple DOI');
+                                item.removeTag('\u{1F50D}No DOI found');
                                 item.saveTx();
                                 Zotero.ShortDOI.counter++;
                             }
@@ -410,9 +410,9 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
                                 if (item.isRegularItem() && !item.isCollection()) {
                                     var longDOI = req.response.values["1"].data.value;
                                     item.setField('DOI', longDOI);
-                                    item.removeTag('_Invalid DOI');
-                                    item.removeTag('_Multiple DOI');
-                                    item.removeTag('_No DOI found');
+                                    item.removeTag('\u26A0\uFE0FInvalid DOI');
+                                    item.removeTag('\u2753Multiple DOI');
+                                    item.removeTag('\u{1F50D}No DOI found');
                                     item.saveTx();
                                     Zotero.ShortDOI.counter++;
                                 }
@@ -420,15 +420,15 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
                                 if (req.response.handle != oldDOI) {
                                     var longDOI = req.response.handle;
                                     item.setField('DOI', longDOI);
-                                    item.removeTag('_Invalid DOI');
-                                    item.removeTag('_Multiple DOI');
-                                    item.removeTag('_No DOI found');
+                                    item.removeTag('\u26A0\uFE0FInvalid DOI');
+                                    item.removeTag('\u2753Multiple DOI');
+                                    item.removeTag('\u{1F50D}No DOI found');
                                     item.saveTx();
                                     Zotero.ShortDOI.counter++;
-                                } else if (item.hasTag('_Invalid DOI') || item.hasTag('_Multiple DOI') || item.hasTag('_No DOI found')) {
-                                    item.removeTag('_Invalid DOI');
-                                    item.removeTag('_Multiple DOI');
-                                    item.removeTag('_No DOI found');
+                                } else if (item.hasTag('\u26A0\uFE0FInvalid DOI') || item.hasTag('\u2753Multiple DOI') || item.hasTag('\u{1F50D}No DOI found')) {
+                                    item.removeTag('\u26A0\uFE0FInvalid DOI');
+                                    item.removeTag('\u2753Multiple DOI');
+                                    item.removeTag('\u{1F50D}No DOI found');
                                     item.saveTx();
                                 }
                             }
@@ -462,14 +462,14 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
                             if (req.response.handle != oldDOI) {
                                 var newDOI = req.response.handle;
                                 item.setField('DOI', newDOI);
-                                item.removeTag('_Invalid DOI');
-                                item.removeTag('_Multiple DOI');
-                                item.removeTag('_No DOI found');
+                                item.removeTag('\u26A0\uFE0FInvalid DOI');
+                                item.removeTag('\u2753Multiple DOI');
+                                item.removeTag('\u{1F50D}No DOI found');
                                 item.saveTx();
-                            } else if (item.hasTag('_Invalid DOI') || item.hasTag('_Multiple DOI') || item.hasTag('_No DOI found')) {
-                                item.removeTag('_Invalid DOI');
-                                item.removeTag('_Multiple DOI');
-                                item.removeTag('_No DOI found');
+                            } else if (item.hasTag('\u26A0\uFE0FInvalid DOI') || item.hasTag('\u2753Multiple DOI') || item.hasTag('\u{1F50D}No DOI found')) {
+                                item.removeTag('\u26A0\uFE0FInvalid DOI');
+                                item.removeTag('\u2753Multiple DOI');
+                                item.removeTag('\u{1F50D}No DOI found');
                                 item.saveTx();
                             }
                             Zotero.ShortDOI.counter++;
@@ -490,7 +490,7 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
 Zotero.ShortDOI.invalidate = function(item, operation) {
     if (item.isRegularItem() && !item.isCollection()) {
         Zotero.ShortDOI.invalidDOI = true;
-        item.addTag('_Invalid DOI');
+        item.addTag('\u26A0\uFE0FInvalid DOI');
         item.saveTx();
     }
     Zotero.ShortDOI.updateNextItem(operation);
@@ -525,9 +525,9 @@ Zotero.ShortDOI.crossrefLookup = function(item, operation) {
 
                       } else {
                           item.setField('DOI', doi);
-                          item.removeTag('_Invalid DOI');
-                          item.removeTag('_Multiple DOI');
-                          item.removeTag('_No DOI found');
+                          item.removeTag('\u26A0\uFE0FInvalid DOI');
+                          item.removeTag('\u2753Multiple DOI');
+                          item.removeTag('\u{1F50D}No DOI found');
                           item.saveTx();
                           Zotero.ShortDOI.counter++;
                           Zotero.ShortDOI.updateNextItem(operation);
@@ -536,22 +536,22 @@ Zotero.ShortDOI.crossrefLookup = function(item, operation) {
 
                   } else if (status === "unresolved") {
                       Zotero.ShortDOI.lookupFailure = true;
-                      item.removeTag('_Invalid DOI');
-                      item.removeTag('_Multiple DOI');
-                      item.removeTag('_No DOI found');
-                      item.addTag('_No DOI found');
+                      item.removeTag('\u26A0\uFE0FInvalid DOI');
+                      item.removeTag('\u2753Multiple DOI');
+                      item.removeTag('\u{1F50D}No DOI found');
+                      item.addTag('\u{1F50D}No DOI found');
                       item.saveTx();
                       Zotero.ShortDOI.updateNextItem(operation);
 
                   } else if (status === "multiresolved") {
                       Zotero.ShortDOI.multiLookup = true;
                       Zotero.Attachments.linkFromURL({"url":crossrefOpenURL + ctx, "parentItemID":item.id, "contentType":"text/html", "title":"Multiple DOIs found"});
-                      if (item.hasTag('_Invalid DOI') || item.hasTag('_No DOI found')) {
-                          item.removeTag('_Invalid DOI');
-                          item.removeTag('_No DOI found');
+                      if (item.hasTag('\u26A0\uFE0FInvalid DOI') || item.hasTag('\u{1F50D}No DOI found')) {
+                          item.removeTag('\u26A0\uFE0FInvalid DOI');
+                          item.removeTag('\u{1F50D}No DOI found');
                       }
                       // TODO: Move this tag to the attachment link
-                      item.addTag('_Multiple DOI');
+                      item.addTag('\u2753Multiple DOI');
                       item.saveTx();
                       Zotero.ShortDOI.updateNextItem(operation);
 
