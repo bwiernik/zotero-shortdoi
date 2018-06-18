@@ -245,39 +245,6 @@ Zotero.ShortDOI.generateItemUrl = function(item, operation) {
 
 };
 
-Zotero.ShortDOI.updateSelectedEntity = function(operation) {
-    if (!ZoteroPane.canEdit()) {
-        ZoteroPane.displayCannotEditLibraryMessage();
-        return;
-    }
-
-    var collection = ZoteroPane.getSelectedCollection();
-    var group = ZoteroPane.getSelectedGroup();
-
-    if (collection) {
-        var items = [];
-        collection.getChildItems(false).forEach(function (item) {
-            items.push(Zotero.Items.get(item.id));
-        });
-        Zotero.ShortDOI.updateItems(items, operation);
-    } else if (group) {
-        if (!group.editable) {
-            alert("This group is not editable!");
-            return;
-        }
-        var items = [];
-        group.getCollections().forEach(function(collection) {
-            collection.getChildItems(false).forEach(function(item) {
-                items.push(Zotero.Items.get(item.id));
-            })
-        });
-        Zotero.ShortDOI.updateItems(items, operation);
-    } else {
-        Zotero.ShortDOI.resetState(operation);
-        return;
-    }
-};
-
 Zotero.ShortDOI.updateSelectedItems = function(operation) {
     Zotero.ShortDOI.updateItems(ZoteroPane.getSelectedItems(), operation);
 };

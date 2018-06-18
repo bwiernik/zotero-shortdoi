@@ -17,28 +17,9 @@
             src="chrome://zoteroshortdoi/locale/zoteroshortdoi.properties"/>
     </stringbundleset>
 
-    <popup id="zotero-collectionmenu">
-        <menu id="zotero-collectionmenu-zoteroshortdoi-menu" label="&zotero.zoteroshortdoi.menu.label;">
-            <menupopup id="zotero-collectionmenu-zoteroshortdoi-menupopup">
-                <menuitem
-                    id="zotero-collectionmenu-zoteroshortdoi-short"
-                    label="&zotero.zoteroshortdoi.short.label;"
-                    oncommand="Zotero.ShortDOI.updateSelectedItems('short')"/>
-                <menuitem
-                    id="zotero-collectionmenu-zoteroshortdoi-long"
-                    label="&zotero.zoteroshortdoi.long.label;"
-                    oncommand="Zotero.ShortDOI.updateSelectedItems('long')"/>
-                <menuitem
-                    id="zotero-collectionmenu-zoteroshortdoi-check"
-                    label="&zotero.zoteroshortdoi.check.label;"
-                    oncommand="Zotero.ShortDOI.updateSelectedItems('check')"/>
-            </menupopup>
-        </menu>
-    </popup>
-
     <popup
         id="zotero-itemmenu">
-        <menu id="zotero-itemmenu-zoteroshortdoi-menu" label="&zotero.zoteroshortdoi.menu.label;">
+        <menu class="menu-iconic" image="chrome://zoteroshortdoi/skin/doi@2x.png" id="zotero-itemmenu-zoteroshortdoi-menu" label="&zotero.zoteroshortdoi.menu.label;">
             <menupopup id="zotero-itemmenu-zoteroshortdoi-menupopup">
                 <menuitem
                     id="zotero-itemmenu-zoteroshortdoi-short"
@@ -57,8 +38,8 @@
     </popup>
 
     <menupopup
-        id="menu_ToolsPopup" onpopupshowing="Zotero.ShortDOI.setCheck();"> 
-        <menuitem 
+        id="menu_ToolsPopup" onpopupshowing="Zotero.ShortDOI.setCheck();">
+        <menuitem
             id="zoteroshortdoi-options-autoshort"
             label="&zotero.zoteroshortdoi.toolsmenu.autoshort.label;"
             type="checkbox"
