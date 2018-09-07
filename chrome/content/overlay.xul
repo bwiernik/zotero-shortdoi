@@ -6,9 +6,7 @@
     id="zoteroshortdoi"
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-    <script
-        type="application/x-javascript"
-        src="chrome://zoteroshortdoi/content/scripts/zoteroshortdoi.js"/>
+    <script src="chrome://zoteroshortdoi/content/scripts/zoteroshortdoi.js"/>
     <script src="chrome://zotero/content/include.js"/>
 
     <stringbundleset id="stringbundleset">
