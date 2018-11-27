@@ -4,11 +4,6 @@
     xmlns:NC="http://home.netscape.com/NC-rdf#"
     xmlns:RDF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
     <RDF:Description
-        RDF:about="rdf:#$x61SL3"
-        em:id="{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"
-        em:minVersion="2.0"
-        em:maxVersion="20.*"/>
-    <RDF:Description
         RDF:about="urn:mozilla:install-manifest"
         em:id="zoteroshortdoi@wiernik.org"
         em:name="Zotero DOI Manager"
@@ -19,7 +14,6 @@
         em:homepageURL="https://github.org/bwiernik/zotero-shortdoi"
         em:updateURL="https://raw.githubusercontent.com/bwiernik/zotero-shortdoi/master/update.rdf">
         <em:type>2</em:type>
-        <em:targetApplication RDF:resource="rdf:#$x61SL3"/>
         <em:targetApplication>
             <Description>
                 <em:id>zotero@chnm.gmu.edu</em:id>
