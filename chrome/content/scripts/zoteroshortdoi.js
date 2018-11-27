@@ -299,7 +299,7 @@ Zotero.ShortDOI.updateSelectedItems = function(operation) {
 
 Zotero.ShortDOI.updateItems = function(items, operation) {
     // For now, filter out non-journal article items
-    var items = items.filter(item => item.itemTypeID == Zotero.ItemTypes.getID('journalArticle'));
+    var items = items.filter(item => item.itemTypeID == Zotero.ItemTypes.getID('journalArticle') || item.itemTypeID == Zotero.ItemTypes.getID('conferencePaper'));
 
     if (items.length === 0 ||
             Zotero.ShortDOI.numberOfUpdatedItems < Zotero.ShortDOI.toUpdate) {
