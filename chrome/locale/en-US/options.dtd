@@ -1,2 +1,5 @@
 <!ENTITY options_window_title "Zotero DOI Manager Preferences">
 <!ENTITY options_extensions.shortdoi.autoshort.label "Automatically get shortDOIs on item import">
+<!ENTITY options_extensions.shortdoi.tag_invalid.label "Tag to indicate 'Invalid DOI supplied'">
+<!ENTITY options_extensions.shortdoi.tag_multiple.label "Tag to indicate 'Multiple possible DOIs found'">
+<!ENTITY options_extensions.shortdoi.tag_nodoi.label "Tag to indicate 'No DOI found'">

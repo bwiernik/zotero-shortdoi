@@ -3,5 +3,7 @@
 <vbox xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <!--setting pref="extensions.shortdoi.savelong" title="Store long DOI in Extra" type="bool"/ -->
   <setting pref="extensions.shortdoi.autoshort" title="&options_extensions.shortdoi.autoshort.label;" type="bool"/>
+  <setting pref="extensions.shortdoi.tag_invalid" title="&options_extensions.shortdoi.tag_invalid.label;" type="string"/>
+  <setting pref="extensions.shortdoi.tag_multiple" title="&options_extensions.shortdoi.tag_multiple.label;" type="string"/>
+  <setting pref="extensions.shortdoi.tag_nodoi" title="&options_extensions.shortdoi.tag_nodoi.label;" type="string"/>
 </vbox>
-
