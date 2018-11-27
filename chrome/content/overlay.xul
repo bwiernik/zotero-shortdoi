@@ -36,14 +36,33 @@
             </menupopup>
         </menu>
     </popup>
-
-    <menupopup
-        id="menu_ToolsPopup" onpopupshowing="Zotero.ShortDOI.setCheck();">
-        <menuitem
-            id="zoteroshortdoi-options-autoshort"
-            label="&zotero.zoteroshortdoi.toolsmenu.autoshort.label;"
-            type="checkbox"
-            oncommand="Zotero.ShortDOI.changePref()"/>
+    
+    <menupopup id="menu_ToolsPopup">
+      <menu id="menu_Tools-zoteroshortdoi-menu" label="&zotero.zoteroshortdoi.toolsmenu.label;">
+        <menupopup id="menu_Tools-zoteroshortdoi-menu-popup" onpopupshowing="Zotero.ShortDOI.setCheck();">
+          <menuitem
+              id="menu_Tools-zoteroshortdoi-menu-popup-short"
+              type="checkbox"
+              label="shortDOIs"
+              oncommand="Zotero.ShortDOI.changePref('short');"/>
+          <menuitem
+              id="menu_Tools-zoteroshortdoi-menu-popup-long"
+              type="checkbox"
+              label="Long DOIs"
+              oncommand="Zotero.ShortDOI.changePref('long');"/>
+          <menuitem
+              id="menu_Tools-zoteroshortdoi-menu-popup-check"
+              type="checkbox"
+              label="Verify DOIs only"
+              oncommand="Zotero.ShortDOI.changePref('check');"/>
+          <menuitem
+              id="menu_Tools-zoteroshortdoi-menu-popup-none"
+              type="checkbox"
+              label="No"
+              oncommand="Zotero.ShortDOI.changePref('none');"/>
+        </menupopup>
+      </menu>
     </menupopup>
+
 
 </overlay>

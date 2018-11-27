@@ -10,7 +10,7 @@ Zotero.ShortDOI = {};
 const PREF_BRANCH = 'extensions.shortdoi.';
 const PREFS = {
     //savelong: true,
-    autoshort: true,
+    autoretrieve: "short",
     tag_invalid: "_Invalid DOI",
     tag_multiple: "_Multiple DOIs found",
     tag_nodoi: "_No DOI found"
@@ -47,7 +47,7 @@ function setPref(key, value) {
     case "string":
       var str = Components.classes["@mozilla.org/supports-string;1"]
                 .createInstance(Components.interfaces.nsISupportsString);
-      str.data = val;
+      str.data = value;
       setPref.branch.setComplexValue(key, 
                              Components.interfaces.nsISupportsString, str);
       break;
@@ -100,8 +100,8 @@ var prefObserver = {
 
   observe: function(aSubject, aTopic, aData) {
     switch (aData) {
-      case "autoshort":
-        Zotero.ShortDOI.autoshort = getPref("autoshort");
+      case "autoretrieve":
+        Zotero.ShortDOI.autoretrieve = getPref("autoretrieve");
         break;
       case "tag_invalid": 
         Zotero.ShortDOI.tag_invalid = getPref("tag_invalid");
@@ -134,7 +134,7 @@ Zotero.ShortDOI.init = function() {
     var notifierID = Zotero.Notifier.registerObserver(
         Zotero.ShortDOI.notifierCallback, ['item']);
     prefObserver.register();
-    Zotero.ShortDOI.autoshort = getPref("autoshort");
+    Zotero.ShortDOI.autoretrieve = getPref("autoretrieve");
     Zotero.ShortDOI.tag_invalid = getPref("tag_invalid");
     Zotero.ShortDOI.tag_multiple = getPref("tag_multiple");
     Zotero.ShortDOI.tag_nodoi = getPref("tag_nodoi");
@@ -150,8 +150,19 @@ Zotero.ShortDOI.init = function() {
 Zotero.ShortDOI.notifierCallback = {
     notify: function(event, type, ids, extraData) {
         if (event == 'add') {
-          if (Zotero.ShortDOI.autoshort) {
-            Zotero.ShortDOI.updateItems(Zotero.Items.get(ids), "short");
+          alert(getPref("autoretrieve"));
+          switch (getPref("autoretrieve")) {
+            case "short":
+              Zotero.ShortDOI.updateItems(Zotero.Items.get(ids), "short");
+              break;
+            case "long":
+              Zotero.ShortDOI.updateItems(Zotero.Items.get(ids), "long");
+              break;
+            case "verify":
+              Zotero.ShortDOI.updateItems(Zotero.Items.get(ids), "check");
+              break;
+            default:
+              break;
           }
         }
     }
@@ -161,19 +172,21 @@ Zotero.ShortDOI.notifierCallback = {
 
 // *********** Set the checkbox checks, frompref
 Zotero.ShortDOI.setCheck = function() {
-    var autoshortCheck = document.getElementById("zoteroshortdoi-options-autoshort");
-    autoshortvalue = getPref("autoshort");
-    autoshortCheck.setAttribute("checked", Boolean(autoshortvalue));
+    var tools_short = document.getElementById("menu_Tools-zoteroshortdoi-menu-popup-short");
+    var tools_long  = document.getElementById("menu_Tools-zoteroshortdoi-menu-popup-long");
+    var tools_check = document.getElementById("menu_Tools-zoteroshortdoi-menu-popup-check");
+    var tools_none  = document.getElementById("menu_Tools-zoteroshortdoi-menu-popup-none");
+    var pref = getPref("autoretrieve");
+    tools_short.setAttribute("checked", Boolean(pref === "short"));
+    tools_long.setAttribute("checked", Boolean(pref === "long"));
+    tools_check.setAttribute("checked", Boolean(pref === "check"));
+    tools_none.setAttribute("checked", Boolean(pref === "none"));
 };
 
 // *********** Change the checkbox, topref
-Zotero.ShortDOI.changePref = function changePref() {
-    var autoshortCheck = document.getElementById("zoteroshortdoi-options-autoshort");
-    autoshortvalue = getPref("autoshort");
-    var autoshortvalue = !autoshortvalue;
-    setPref("autoshort", Boolean(autoshortvalue));
+Zotero.ShortDOI.changePref = function changePref(option) {
+    setPref("autoretrieve", option);
 };
-
 
 Zotero.ShortDOI.resetState = function(operation) {
 

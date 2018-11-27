@@ -2,4 +2,4 @@
 <!ENTITY zotero.zoteroshortdoi.long.label "Get long DOIs">
 <!ENTITY zotero.zoteroshortdoi.check.label "Verify and clean DOIs">
 <!ENTITY zotero.zoteroshortdoi.menu.label "Manage DOIs">
-<!ENTITY zotero.zoteroshortdoi.toolsmenu.autoshort.label "Get shortDOIs for new items">
+<!ENTITY zotero.zoteroshortdoi.toolsmenu.label "Get DOIs for new items">
