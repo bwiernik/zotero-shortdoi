@@ -150,7 +150,6 @@ Zotero.ShortDOI.init = function() {
 Zotero.ShortDOI.notifierCallback = {
     notify: function(event, type, ids, extraData) {
         if (event == 'add') {
-          alert(getPref("autoretrieve"));
           switch (getPref("autoretrieve")) {
             case "short":
               Zotero.ShortDOI.updateItems(Zotero.Items.get(ids), "short");
