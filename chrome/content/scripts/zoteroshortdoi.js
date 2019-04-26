@@ -9,7 +9,6 @@ Zotero.ShortDOI = {};
 
 const PREF_BRANCH = 'extensions.shortdoi.';
 const PREFS = {
-    //savelong: true,
     autoretrieve: "short",
     tag_invalid: "_Invalid DOI",
     tag_multiple: "_Multiple DOIs found",
@@ -53,29 +52,6 @@ function setPref(key, value) {
       break;
   }
 }
-
-/*
-function setDefaultPrefs() {
-  let branch = Services.prefs.getDefaultBranch(PREF_BRANCH);
-  for (let [key, val] in Iterator(PREFS)) {
-    switch (typeof val) {
-      case "boolean":
-        branch.setBoolPref(key, val);
-        break;
-      case "number":
-        branch.setIntPref(key, val);
-        break;
-      case "string":
-        var str = Components.classes["@mozilla.org/supports-string;1"]
-                  .createInstance(Components.interfaces.nsISupportsString);
-        str.data = val;
-        branch.setComplexValue(key, 
-                               Components.interfaces.nsISupportsString, str);
-        break;
-    }
-  }
-}
-*/
 
 var prefObserver = {
   register: function() {
@@ -121,14 +97,6 @@ var prefObserver = {
 Zotero.ShortDOI.init = function() {
     //setDefaultPrefs();
     Zotero.ShortDOI.resetState("initial");
-
-    /*stringBundle = document.getElementById('zoteroshortdoi-bundle');
-    error_invalidString = 'Invalid DOI';
-    error_invalidTagString = 'Invalid DOIs were found. These have been tagged with \u26A0\uFE0FInvalid DOI.';
-    if (stringBundle != null) {
-        error_invalidString = stringBundle.getString('invalidDOIString');
-        error_invalidTagString = stringBundle.getString('invalidDOITagString');
-    }*/
 
     // Register the callback in Zotero as an item observer
     var notifierID = Zotero.Notifier.registerObserver(
@@ -310,8 +278,9 @@ Zotero.ShortDOI.updateSelectedItems = function(operation) {
 };
 
 Zotero.ShortDOI.updateItems = function(items, operation) {
-    // For now, filter out non-journal article items
+    // For now, filter out non-journal article and conference paper items
     var items = items.filter(item => item.itemTypeID == Zotero.ItemTypes.getID('journalArticle') || item.itemTypeID == Zotero.ItemTypes.getID('conferencePaper'));
+    var items = items.filter(item => ! item.isFeedItem);
 
     if (items.length === 0 ||
             Zotero.ShortDOI.numberOfUpdatedItems < Zotero.ShortDOI.toUpdate) {
@@ -325,7 +294,6 @@ Zotero.ShortDOI.updateItems = function(items, operation) {
     // Progress Windows
     Zotero.ShortDOI.progressWindow = new Zotero.ProgressWindow({closeOnClick: false});
     var icon = 'chrome://zotero/skin/toolbar-advanced-search' + (Zotero.hiDPI ? "@2x" : "") + '.png';
-    //var icon = "chrome://zotero/skin/toolbar-advanced-search.png";
     if (operation == "short") {
         Zotero.ShortDOI.progressWindow.changeHeadline("Getting shortDOIs", icon);
     } else if (operation == "long") {
@@ -334,7 +302,6 @@ Zotero.ShortDOI.updateItems = function(items, operation) {
         Zotero.ShortDOI.progressWindow.changeHeadline("Validating DOIs and removing extra text", icon);
     }
     var doiIcon = 'chrome://zoteroshortdoi/skin/doi' + (Zotero.hiDPI ? "@2x" : "") + '.png';
-    //var doiIcon = 'chrome://zoteroshortdoi/skin/doi.png';
     Zotero.ShortDOI.progressWindow.progress = new Zotero.ShortDOI.progressWindow.ItemProgress(doiIcon, "Checking DOIs.");
 
     Zotero.ShortDOI.updateNextItem(operation);
@@ -387,7 +354,7 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
                             if (oldDOI.match(/10\/[^\s]*[^\s\.,]/)) {
                                 if (req.response.responseCode == 1) {
                                     if (req.response.handle != oldDOI) {
-                                        var shortDOI = req.response.handle;
+                                        var shortDOI = req.response.handle.toLowerCase();
                                         item.setField('DOI', shortDOI);
                                         item.removeTag(Zotero.ShortDOI.tag_invalid);
                                         item.removeTag(Zotero.ShortDOI.tag_multiple);
@@ -404,7 +371,7 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
                                     Zotero.ShortDOI.invalidate(item, operation);
                                 }
                             } else {
-                                var shortDOI = req.response.ShortDOI;
+                                var shortDOI = req.response.ShortDOI.toLowerCase();
                                 item.setField('DOI', shortDOI);
                                 item.removeTag(Zotero.ShortDOI.tag_invalid);
                                 item.removeTag(Zotero.ShortDOI.tag_multiple);
@@ -426,7 +393,6 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
             req.send(null);
 
         } else if (operation == "long") {
-            //req.setRequestHeader('Accept', 'application/vnd.citationstyles.csl+json');
 
             req.onreadystatechange = function() {
                 if (req.readyState == 4) {
@@ -435,7 +401,7 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
                             if (oldDOI.match(/10\/[^\s]*[^\s\.,]/)) {
 
                                 if (item.isRegularItem() && !item.isCollection()) {
-                                    var longDOI = req.response.values["1"].data.value;
+                                    var longDOI = req.response.values["1"].data.value.toLowerCase();
                                     item.setField('DOI', longDOI);
                                     item.removeTag(Zotero.ShortDOI.tag_invalid);
                                     item.removeTag(Zotero.ShortDOI.tag_multiple);
@@ -445,7 +411,7 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
                                 }
                             } else {
                                 if (req.response.handle != oldDOI) {
-                                    var longDOI = req.response.handle;
+                                    var longDOI = req.response.handle.toLowerCase();
                                     item.setField('DOI', longDOI);
                                     item.removeTag(Zotero.ShortDOI.tag_invalid);
                                     item.removeTag(Zotero.ShortDOI.tag_multiple);
@@ -487,7 +453,7 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
                             Zotero.ShortDOI.invalidate(item, operation);
                         } else {
                             if (req.response.handle != oldDOI) {
-                                var newDOI = req.response.handle;
+                                var newDOI = req.response.handle.toLowerCase();
                                 item.setField('DOI', newDOI);
                                 item.removeTag(Zotero.ShortDOI.tag_invalid);
                                 item.removeTag(Zotero.ShortDOI.tag_multiple);
@@ -536,7 +502,6 @@ Zotero.ShortDOI.crossrefLookup = function(item, operation) {
       var url = crossrefOpenURL + ctx + '&multihit=true';
       var req = new XMLHttpRequest();
       req.open('GET', url, true);
-      // req.responseType = 'json';
 
       req.onreadystatechange = function() {
           if (req.readyState == 4) {
@@ -546,7 +511,6 @@ Zotero.ShortDOI.crossrefLookup = function(item, operation) {
                   if (status === "resolved") {
                       var doi = response.getElementsByTagName("doi")[0].childNodes[0].nodeValue;
                       if (operation === "short") {
-                          //return doi;    // Need to promisfy to be able to simply use return()
                           item.setField('DOI', doi);
                           Zotero.ShortDOI.updateItem(item, operation);
 
