@@ -3,3 +3,14 @@
 <!ENTITY zotero.zoteroshortdoi.check.label "Verify and clean DOIs">
 <!ENTITY zotero.zoteroshortdoi.menu.label "Manage DOIs">
 <!ENTITY zotero.zoteroshortdoi.toolsmenu.label "Get DOIs for new items">
+
+<!ENTITY shortdoi-preferences-label "DOI Manager Preferences…">
+<!ENTITY shortdoi-autoretrieve-label "Get DOIs for new items">
+<!ENTITY shortdoi-autoretrieve-short-label "shortDOIs">
+<!ENTITY shortdoi-autoretrieve-long-label "Long DOIs">
+<!ENTITY shortdoi-autoretrieve-check-label "Verify DOIs only">
+<!ENTITY shortdoi-autoretrieve-no-label "No">
+<!ENTITY shortdoi-menu-label "Manage DOIs">
+<!ENTITY shortdoi-menu-short-label "Get shortDOIs">
+<!ENTITY shortdoi-menu-long-label "Get long DOIs">
+<!ENTITY shortdoi-menu-check-label "Verify and clean DOIs">

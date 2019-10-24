@@ -1,5 +1,12 @@
-<!ENTITY options_window_title "Zotero DOI Manager Preferences">
-<!ENTITY options_extensions.shortdoi.autoretrieve.label "Automatically get DOIs on item import?">
-<!ENTITY options_extensions.shortdoi.tag_invalid.label "Tag to indicate 'Invalid DOI supplied'">
-<!ENTITY options_extensions.shortdoi.tag_multiple.label "Tag to indicate 'Multiple possible DOIs found'">
-<!ENTITY options_extensions.shortdoi.tag_nodoi.label "Tag to indicate 'No DOI found'">
+<!ENTITY shortdoi-name "DOI Manager">
+<!ENTITY shortdoi-preferences "DOI Manager Preferences">
+<!ENTITY autoretrieve-label "Get DOIs for new items">
+<!ENTITY autoretrieve-short-label "shortDOIs">
+<!ENTITY autoretrieve-long-label "Long DOIs">
+<!ENTITY autoretrieve-check-label "Verify DOIs only">
+<!ENTITY autoretrieve-no-label "No">
+<!ENTITY notfound-tag-label "DOI Not Found Tags">
+<!ENTITY notfound-tag-desc "Tags added to items to indicate reasons why unique DOIs are not found">
+<!ENTITY tag-invalid-label "Invalid DOI">
+<!ENTITY tag-multiple-label "Multiple possible DOIs found">
+<!ENTITY tag-nodoi-label "No DOI found">
