@@ -1,116 +1,31 @@
-const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
-Cu.import("resource://gre/modules/Services.jsm");
-
 // Startup -- load Zotero and constants
 if (typeof Zotero === 'undefined') {
     Zotero = {};
 }
 Zotero.ShortDOI = {};
 
-const PREF_BRANCH = 'extensions.shortdoi.';
-const PREFS = {
-    autoretrieve: "short",
-    tag_invalid: "_Invalid DOI",
-    tag_multiple: "_Multiple DOIs found",
-    tag_nodoi: "_No DOI found"
+// Preference managers
+
+function getPref(pref) {
+    return Zotero.Prefs.get('extensions.shortdoi.' + pref, true);
 };
 
-// Preference managers
-function getPref(key) {
-  // Cache the prefbranch after first use
-  if (getPref.branch == null)
-    getPref.branch = Services.prefs.getBranch(PREF_BRANCH);
-
-  // Figure out what type of pref to fetch
-  switch (typeof PREFS[key]) {
-    case "boolean":
-      return getPref.branch.getBoolPref(key);
-    case "number":
-      return getPref.branch.getIntPref(key);
-    case "string":
-      return getPref.branch.getComplexValue(key, Components.interfaces.nsISupportsString).data;
-  }
-}
-
-function setPref(key, value) {
-  // Cache the prefbranch after first use
-  if (setPref.branch == null)
-    setPref.branch = Services.prefs.getBranch(PREF_BRANCH);
-
-  // Figure out what type of pref to fetch
-  switch (typeof PREFS[key]) {
-    case "boolean":
-      return setPref.branch.setBoolPref(key, value);
-    case "number":
-      return setPref.branch.setIntPref(key, value);
-    case "string":
-      var str = Components.classes["@mozilla.org/supports-string;1"]
-                .createInstance(Components.interfaces.nsISupportsString);
-      str.data = value;
-      setPref.branch.setComplexValue(key, 
-                             Components.interfaces.nsISupportsString, str);
-      break;
-  }
-}
-
-var prefObserver = {
-  register: function() {
-    var prefService = Components.classes["@mozilla.org/preferences-service;1"]
-                                .getService(Components.interfaces.nsIPrefService);
-
-    this.branch = prefService.getBranch(PREF_BRANCH);
-
-    // Now we queue the interface called nsIPrefBranch2. This interface is described as:
-    // "nsIPrefBranch2 allows clients to observe changes to pref values."
-    // This is only necessary prior to Gecko 13
-    if (!("addObserver" in this.branch))
-        this.branch.QueryInterface(Components.interfaces.nsIPrefBranch2);
-
-    // Finally add the observer.
-    this.branch.addObserver("", this, false);
-  },
-
-  unregister: function() {
-    this.branch.removeObserver("", this);
-  },
-
-  observe: function(aSubject, aTopic, aData) {
-    switch (aData) {
-      case "autoretrieve":
-        Zotero.ShortDOI.autoretrieve = getPref("autoretrieve");
-        break;
-      case "tag_invalid": 
-        Zotero.ShortDOI.tag_invalid = getPref("tag_invalid");
-        break;
-      case "tag_multiple": 
-        Zotero.ShortDOI.tag_multiple = getPref("tag_multiple");
-        break;
-      case "tag_nodoi":
-        Zotero.ShortDOI.tag_nodoi = getPref("tag_nodoi");
-        break; 
-    }
-  }
+function setPref(pref, value) {
+    return Zotero.Prefs.set('extensions.shortdoi.' + pref, value, true);
 };
 
 // Startup - initialize plugin
 
 Zotero.ShortDOI.init = function() {
-    //setDefaultPrefs();
     Zotero.ShortDOI.resetState("initial");
 
     // Register the callback in Zotero as an item observer
     var notifierID = Zotero.Notifier.registerObserver(
         Zotero.ShortDOI.notifierCallback, ['item']);
-    prefObserver.register();
-    Zotero.ShortDOI.autoretrieve = getPref("autoretrieve");
-    Zotero.ShortDOI.tag_invalid = getPref("tag_invalid");
-    Zotero.ShortDOI.tag_multiple = getPref("tag_multiple");
-    Zotero.ShortDOI.tag_nodoi = getPref("tag_nodoi");
 
     // Unregister callback when the window closes (important to avoid a memory leak)
     window.addEventListener('unload', function(e) {
         Zotero.Notifier.unregisterObserver(notifierID);
-        prefObserver.unregister();
     }, false);
 
 };
@@ -139,10 +54,10 @@ Zotero.ShortDOI.notifierCallback = {
 
 // *********** Set the checkbox checks, frompref
 Zotero.ShortDOI.setCheck = function() {
-    var tools_short = document.getElementById("menu_Tools-zoteroshortdoi-menu-popup-short");
-    var tools_long  = document.getElementById("menu_Tools-zoteroshortdoi-menu-popup-long");
-    var tools_check = document.getElementById("menu_Tools-zoteroshortdoi-menu-popup-check");
-    var tools_none  = document.getElementById("menu_Tools-zoteroshortdoi-menu-popup-none");
+    var tools_short = document.getElementById("menu_Tools-shortdoi-menu-popup-short");
+    var tools_long  = document.getElementById("menu_Tools-shortdoi-menu-popup-long");
+    var tools_check = document.getElementById("menu_Tools-shortdoi-menu-popup-check");
+    var tools_none  = document.getElementById("menu_Tools-shortdoi-menu-popup-none");
     var pref = getPref("autoretrieve");
     tools_short.setAttribute("checked", Boolean(pref === "short"));
     tools_long.setAttribute("checked", Boolean(pref === "long"));
@@ -153,6 +68,17 @@ Zotero.ShortDOI.setCheck = function() {
 // *********** Change the checkbox, topref
 Zotero.ShortDOI.changePref = function changePref(option) {
     setPref("autoretrieve", option);
+};
+
+/**
+ * Open shortdoi preference window
+ */
+Zotero.ShortDOI.openPreferenceWindow = function(paneID, action) {
+    var io = {pane: paneID, action: action};
+    window.openDialog('chrome://zoteroshortdoi/content/options.xul',
+        'shortdoi-pref',
+        'chrome,titlebar,toolbar,centerscreen' + Zotero.Prefs.get('browser.preferences.instantApply', true) ? 'dialog=no' : 'modal', io
+    );
 };
 
 Zotero.ShortDOI.resetState = function(operation) {
@@ -181,8 +107,8 @@ Zotero.ShortDOI.resetState = function(operation) {
             if(error_invalid && ! error_invalid_shown) {
               var progressWindowInvalid = new Zotero.ProgressWindow({closeOnClick:true});
               progressWindowInvalid.changeHeadline("Invalid DOI");
-              if(Zotero.ShortDOI.tag_invalid !== "") {
-                progressWindowInvalid.progress = new progressWindowInvalid.ItemProgress(icon, "Invalid DOIs were found. These have been tagged with '" + Zotero.ShortDOI.tag_invalid + "'.");
+              if(getPref("tag_invalid") !== "") {
+                progressWindowInvalid.progress = new progressWindowInvalid.ItemProgress(icon, "Invalid DOIs were found. These have been tagged with '" + getPref("tag_invalid") + "'.");
               } else {
                 progressWindowInvalid.progress = new progressWindowInvalid.ItemProgress(icon, "Invalid DOIs were found.");
               }
@@ -194,8 +120,8 @@ Zotero.ShortDOI.resetState = function(operation) {
             if(error_nodoi && ! error_nodoi_shown) {
               var progressWindowNoDOI = new Zotero.ProgressWindow({closeOnClick:true});
               progressWindowNoDOI.changeHeadline("DOI not found");
-              if(Zotero.ShortDOI.tag_nodoi !== "") {
-                progressWindowNoDOI.progress = new progressWindowNoDOI.ItemProgress(icon, "No DOI was found for some items. These have been tagged with '" + Zotero.ShortDOI.tag_nodoi + "'.");
+              if(getPref("tag_nodoi") !== "") {
+                progressWindowNoDOI.progress = new progressWindowNoDOI.ItemProgress(icon, "No DOI was found for some items. These have been tagged with '" + getPref("tag_nodoi") + "'.");
               } else {
                 progressWindowNoDOI.progress = new progressWindowNoDOI.ItemProgress(icon, "No DOI was found for some items.");
               }
@@ -207,8 +133,8 @@ Zotero.ShortDOI.resetState = function(operation) {
             if(error_multiple && ! error_multiple_shown) {
               var progressWindowMulti = new Zotero.ProgressWindow({closeOnClick:true});
               progressWindowMulti.changeHeadline("Multiple possible DOIs");
-              if(Zotero.ShortDOI.tag_multiple !== "") {
-                progressWindowMulti.progress = new progressWindowMulti.ItemProgress(icon, "Some items had multiple possible DOIs. Links to lists of DOIs have been added and tagged with '" + Zotero.ShortDOI.tag_multiple + "'.");
+              if(getPref("tag_multiple") !== "") {
+                progressWindowMulti.progress = new progressWindowMulti.ItemProgress(icon, "Some items had multiple possible DOIs. Links to lists of DOIs have been added and tagged with '" + getPref("tag_multiple") + "'.");
               } else {
                 progressWindowMulti.progress = new progressWindowMulti.ItemProgress(icon, "Some items had multiple possible DOIs.");
               }
@@ -332,8 +258,8 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
     var url = Zotero.ShortDOI.generateItemUrl(item, operation);
 
     if ( ! url ) {
-        if (item.hasTag(Zotero.ShortDOI.tag_invalid)) {
-            item.removeTag(Zotero.ShortDOI.tag_invalid);
+        if (item.hasTag(getPref("tag_invalid"))) {
+            item.removeTag(getPref("tag_invalid"));
             item.saveTx();
         }
         Zotero.ShortDOI.updateNextItem(operation);
@@ -356,15 +282,15 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
                                     if (req.response.handle != oldDOI) {
                                         var shortDOI = req.response.handle.toLowerCase();
                                         item.setField('DOI', shortDOI);
-                                        item.removeTag(Zotero.ShortDOI.tag_invalid);
-                                        item.removeTag(Zotero.ShortDOI.tag_multiple);
-                                        item.removeTag(Zotero.ShortDOI.tag_nodoi);
+                                        item.removeTag(getPref("tag_invalid"));
+                                        item.removeTag(getPref("tag_multiple"));
+                                        item.removeTag(getPref("tag_nodoi"));
                                         item.saveTx();
                                         Zotero.ShortDOI.counter++;
-                                    } else if (item.hasTag(Zotero.ShortDOI.tag_invalid) || item.hasTag(Zotero.ShortDOI.tag_multiple) || item.hasTag(Zotero.ShortDOI.tag_nodoi)) {
-                                        item.removeTag(Zotero.ShortDOI.tag_invalid);
-                                        item.removeTag(Zotero.ShortDOI.tag_multiple);
-                                        item.removeTag(Zotero.ShortDOI.tag_nodoi);
+                                    } else if (item.hasTag(getPref("tag_invalid")) || item.hasTag(getPref("tag_multiple")) || item.hasTag(getPref("tag_nodoi"))) {
+                                        item.removeTag(getPref("tag_invalid"));
+                                        item.removeTag(getPref("tag_multiple"));
+                                        item.removeTag(getPref("tag_nodoi"));
                                         item.saveTx();
                                     }
                                 } else {
@@ -373,9 +299,9 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
                             } else {
                                 var shortDOI = req.response.ShortDOI.toLowerCase();
                                 item.setField('DOI', shortDOI);
-                                item.removeTag(Zotero.ShortDOI.tag_invalid);
-                                item.removeTag(Zotero.ShortDOI.tag_multiple);
-                                item.removeTag(Zotero.ShortDOI.tag_nodoi);
+                                item.removeTag(getPref("tag_invalid"));
+                                item.removeTag(getPref("tag_multiple"));
+                                item.removeTag(getPref("tag_nodoi"));
                                 item.saveTx();
                                 Zotero.ShortDOI.counter++;
                             }
@@ -403,9 +329,9 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
                                 if (item.isRegularItem() && !item.isCollection()) {
                                     var longDOI = req.response.values["1"].data.value.toLowerCase();
                                     item.setField('DOI', longDOI);
-                                    item.removeTag(Zotero.ShortDOI.tag_invalid);
-                                    item.removeTag(Zotero.ShortDOI.tag_multiple);
-                                    item.removeTag(Zotero.ShortDOI.tag_nodoi);
+                                    item.removeTag(getPref("tag_invalid"));
+                                    item.removeTag(getPref("tag_multiple"));
+                                    item.removeTag(getPref("tag_nodoi"));
                                     item.saveTx();
                                     Zotero.ShortDOI.counter++;
                                 }
@@ -413,15 +339,15 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
                                 if (req.response.handle != oldDOI) {
                                     var longDOI = req.response.handle.toLowerCase();
                                     item.setField('DOI', longDOI);
-                                    item.removeTag(Zotero.ShortDOI.tag_invalid);
-                                    item.removeTag(Zotero.ShortDOI.tag_multiple);
-                                    item.removeTag(Zotero.ShortDOI.tag_nodoi);
+                                    item.removeTag(getPref("tag_invalid"));
+                                    item.removeTag(getPref("tag_multiple"));
+                                    item.removeTag(getPref("tag_nodoi"));
                                     item.saveTx();
                                     Zotero.ShortDOI.counter++;
-                                } else if (item.hasTag(Zotero.ShortDOI.tag_invalid) || item.hasTag(Zotero.ShortDOI.tag_multiple) || item.hasTag(Zotero.ShortDOI.tag_nodoi)) {
-                                    item.removeTag(Zotero.ShortDOI.tag_invalid);
-                                    item.removeTag(Zotero.ShortDOI.tag_multiple);
-                                    item.removeTag(Zotero.ShortDOI.tag_nodoi);
+                                } else if (item.hasTag(getPref("tag_invalid")) || item.hasTag(getPref("tag_multiple")) || item.hasTag(getPref("tag_nodoi"))) {
+                                    item.removeTag(getPref("tag_invalid"));
+                                    item.removeTag(getPref("tag_multiple"));
+                                    item.removeTag(getPref("tag_nodoi"));
                                     item.saveTx();
                                 }
                             }
@@ -455,14 +381,14 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
                             if (req.response.handle != oldDOI) {
                                 var newDOI = req.response.handle.toLowerCase();
                                 item.setField('DOI', newDOI);
-                                item.removeTag(Zotero.ShortDOI.tag_invalid);
-                                item.removeTag(Zotero.ShortDOI.tag_multiple);
-                                item.removeTag(Zotero.ShortDOI.tag_nodoi);
+                                item.removeTag(getPref("tag_invalid"));
+                                item.removeTag(getPref("tag_multiple"));
+                                item.removeTag(getPref("tag_nodoi"));
                                 item.saveTx();
-                            } else if (item.hasTag(Zotero.ShortDOI.tag_invalid) || item.hasTag(Zotero.ShortDOI.tag_multiple) || item.hasTag(Zotero.ShortDOI.tag_nodoi)) {
-                                item.removeTag(Zotero.ShortDOI.tag_invalid);
-                                item.removeTag(Zotero.ShortDOI.tag_multiple);
-                                item.removeTag(Zotero.ShortDOI.tag_nodoi);
+                            } else if (item.hasTag(getPref("tag_invalid")) || item.hasTag(getPref("tag_multiple")) || item.hasTag(getPref("tag_nodoi"))) {
+                                item.removeTag(getPref("tag_invalid"));
+                                item.removeTag(getPref("tag_multiple"));
+                                item.removeTag(getPref("tag_nodoi"));
                                 item.saveTx();
                             }
                             Zotero.ShortDOI.counter++;
@@ -483,7 +409,7 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
 Zotero.ShortDOI.invalidate = function(item, operation) {
     if (item.isRegularItem() && !item.isCollection()) {
         error_invalid = true;
-        if(Zotero.ShortDOI.tag_invalid !== "") item.addTag(Zotero.ShortDOI.tag_invalid);
+        if(getPref("tag_invalid") !== "") item.addTag(getPref("tag_invalid"));
         item.saveTx();
     }
     Zotero.ShortDOI.updateNextItem(operation);
@@ -516,9 +442,9 @@ Zotero.ShortDOI.crossrefLookup = function(item, operation) {
 
                       } else {
                           item.setField('DOI', doi);
-                          item.removeTag(Zotero.ShortDOI.tag_invalid);
-                          item.removeTag(Zotero.ShortDOI.tag_multiple);
-                          item.removeTag(Zotero.ShortDOI.tag_nodoi);
+                          item.removeTag(getPref("tag_invalid"));
+                          item.removeTag(getPref("tag_multiple"));
+                          item.removeTag(getPref("tag_nodoi"));
                           item.saveTx();
                           Zotero.ShortDOI.counter++;
                           Zotero.ShortDOI.updateNextItem(operation);
@@ -527,22 +453,22 @@ Zotero.ShortDOI.crossrefLookup = function(item, operation) {
 
                   } else if (status === "unresolved") {
                       error_nodoi = true;
-                      item.removeTag(Zotero.ShortDOI.tag_invalid);
-                      item.removeTag(Zotero.ShortDOI.tag_multiple);
-                      item.removeTag(Zotero.ShortDOI.tag_nodoi);
-                      if(Zotero.ShortDOI.tag_nodoi !== "") item.addTag(Zotero.ShortDOI.tag_nodoi);
+                      item.removeTag(getPref("tag_invalid"));
+                      item.removeTag(getPref("tag_multiple"));
+                      item.removeTag(getPref("tag_nodoi"));
+                      if(getPref("tag_nodoi") !== "") item.addTag(getPref("tag_nodoi"));
                       item.saveTx();
                       Zotero.ShortDOI.updateNextItem(operation);
 
                   } else if (status === "multiresolved") {
                       error_multiple = true;
                       Zotero.Attachments.linkFromURL({"url":crossrefOpenURL + ctx, "parentItemID":item.id, "contentType":"text/html", "title":"Multiple DOIs found"});
-                      if (item.hasTag(Zotero.ShortDOI.tag_invalid) || item.hasTag(Zotero.ShortDOI.tag_nodoi)) {
-                          item.removeTag(Zotero.ShortDOI.tag_invalid);
-                          item.removeTag(Zotero.ShortDOI.tag_nodoi);
+                      if (item.hasTag(getPref("tag_invalid")) || item.hasTag(getPref("tag_nodoi"))) {
+                          item.removeTag(getPref("tag_invalid"));
+                          item.removeTag(getPref("tag_nodoi"));
                       }
                       // TODO: Move this tag to the attachment link
-                      if(Zotero.ShortDOI.tag_multiple !== "") item.addTag(Zotero.ShortDOI.tag_multiple);
+                      if(getPref("tag_multiple") !== "") item.addTag(getPref("tag_multiple"));
                       item.saveTx();
                       Zotero.ShortDOI.updateNextItem(operation);
 

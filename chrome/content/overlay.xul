@@ -11,52 +11,53 @@
 
     <stringbundleset id="stringbundleset">
         <stringbundle
-            id="zoteroshortdoi-bundle"
+            id="shortdoi-bundle"
             src="chrome://zoteroshortdoi/locale/zoteroshortdoi.properties"/>
     </stringbundleset>
 
     <popup
         id="zotero-itemmenu">
-        <menu class="menu-iconic" image="chrome://zoteroshortdoi/skin/doi@2x.png" id="zotero-itemmenu-zoteroshortdoi-menu" label="&zotero.zoteroshortdoi.menu.label;">
-            <menupopup id="zotero-itemmenu-zoteroshortdoi-menupopup">
+        <menu class="menu-iconic" image="chrome://zoteroshortdoi/skin/doi@2x.png" id="zotero-itemmenu-shortdoi-menu" label="&shortdoi-menu-label;">
+            <menupopup id="zotero-itemmenu-shortdoi-menupopup">
                 <menuitem
-                    id="zotero-itemmenu-zoteroshortdoi-short"
-                    label="&zotero.zoteroshortdoi.short.label;"
+                    id="zotero-itemmenu-shortdoi-short"
+                    label="&shortdoi-menu-short-label;"
                     oncommand="Zotero.ShortDOI.updateSelectedItems('short')"/>
                 <menuitem
-                    id="zotero-itemmenu-zoteroshortdoi-long"
-                    label="&zotero.zoteroshortdoi.long.label;"
+                    id="zotero-itemmenu-shortdoi-long"
+                    label="&shortdoi-menu-long-label;"
                     oncommand="Zotero.ShortDOI.updateSelectedItems('long')"/>
                 <menuitem
-                    id="zotero-itemmenu-zoteroshortdoi-check"
-                    label="&zotero.zoteroshortdoi.check.label;"
+                    id="zotero-itemmenu-shortdoi-check"
+                    label="&shortdoi-menu-check-label;"
                     oncommand="Zotero.ShortDOI.updateSelectedItems('check')"/>
             </menupopup>
         </menu>
     </popup>
     
     <menupopup id="menu_ToolsPopup">
-      <menu id="menu_Tools-zoteroshortdoi-menu" label="&zotero.zoteroshortdoi.toolsmenu.label;">
-        <menupopup id="menu_Tools-zoteroshortdoi-menu-popup" onpopupshowing="Zotero.ShortDOI.setCheck();">
+      <menuitem id="menu_Tools-shortdoi-preferences" label="&shortdoi-preferences-label;" oncommand="Zotero.ShortDOI.openPreferenceWindow();"/>
+      <menu id="menu_Tools-shortdoi-menu" label="&shortdoi-autoretrieve-label;">
+        <menupopup id="menu_Tools-shortdoi-menu-popup" onpopupshowing="Zotero.ShortDOI.setCheck();">
           <menuitem
-              id="menu_Tools-zoteroshortdoi-menu-popup-short"
+              id="menu_Tools-shortdoi-menu-popup-short"
               type="checkbox"
-              label="shortDOIs"
+              label="&shortdoi-autoretrieve-short-label;"
               oncommand="Zotero.ShortDOI.changePref('short');"/>
           <menuitem
-              id="menu_Tools-zoteroshortdoi-menu-popup-long"
+              id="menu_Tools-shortdoi-menu-popup-long"
               type="checkbox"
-              label="Long DOIs"
+              label="&shortdoi-autoretrieve-long-label;"
               oncommand="Zotero.ShortDOI.changePref('long');"/>
           <menuitem
-              id="menu_Tools-zoteroshortdoi-menu-popup-check"
+              id="menu_Tools-shortdoi-menu-popup-check"
               type="checkbox"
-              label="Verify DOIs only"
+              label="&shortdoi-autoretrieve-check-label;"
               oncommand="Zotero.ShortDOI.changePref('check');"/>
           <menuitem
-              id="menu_Tools-zoteroshortdoi-menu-popup-none"
+              id="menu_Tools-shortdoi-menu-popup-none"
               type="checkbox"
-              label="No"
+              label="&shortdoi-autoretrieve-no-label;"
               oncommand="Zotero.ShortDOI.changePref('none');"/>
         </menupopup>
       </menu>
