@@ -154,11 +154,38 @@ Zotero.ShortDOI = {
 
     // Helper functions
     doiFromExtra: function(item, form) {
-        
-
+        if (from === "short") {
+            var value = item.extra.match(/^short\s?doi:\s*(.+)/mi);
+        } else {
+            var value = item.extra.match(/^doi:\s*(.+)/mi);
+        }
+        return value[1];
     },
 
     setExtraDOI: function(item, value) {
+
+        // TODO: Finish this.
+        try {
+            var old = item.getField('extra')
+                if (old.length == 0 || old.search(/^\d{5}$/) != -1) {
+                    item.setField('extra', citations);
+                } else if (old.search(/^\d{5} *\n/) != -1) {
+                    item.setField(
+                            'extra',
+                            old.replace(/^\d{5} */, citations + ' '));
+                } else if (old.search(/^\d{5} *[^\n]+/) != -1) {
+                    item.setField(
+                            'extra',
+                            old.replace(/^\d{5} */, citations + ' \n'));
+                } else if (old.search(/^\d{5}/) != -1) {
+                    item.setField(
+                            'extra',
+                            old.replace(/^\d{5}/, citations));
+                } else {
+                    item.setField('extra', citations + ' \n' + old);
+                }
+            item.save();
+          } catch (e) {}
 
     },
 
@@ -166,108 +193,14 @@ Zotero.ShortDOI = {
 
     },
 
-    generateItemUrl: function(item, operation) {
-        if (!item.getField("DOI")) {
-            var doi = this.doiFromExtra(item, "long");
-            var shortDOI = this.doiFromExtra(item, "short");
+    generateURL: function(doi, form) {
+        if (form === "short" && ! doi.match(/10\/[^\s]*[^\s.,]/)) {
+            var url = "http://shortdoi.org/" + encodeURIComponent(doi) + "?format=json";
+            return url;
         } else {
-            var doi = item.getField("DOI");
+            var url = "https://doi.org/api/handles/" + encodeURIComponent(doi);
+            return url;
         }
-        if (! doi) {
-            doi = this.crossrefLookup(item, operation);
-        } else {
-            if (typeof doi === "string") {
-                doi = Zotero.Utilities.cleanDOI(doi);
-                if (doi) {
-                    if (operation === "short" && ! doi.match(/10\/[^\s]*[^\s\.,]/)) {
-                        var url = "http://shortdoi.org/" + encodeURIComponent(doi) + "?format=json";
-                        return url;
-    
-                    } else {
-                        var url = "https://doi.org/api/handles/" + encodeURIComponent(doi);
-                        return url;
-                    }
-    
-                } else {
-                    return "invalid";
-                }
-    
-              } else {
-                  return "invalid";
-              }
-        }
-        return false;
-    },
-
-    crossrefLookup: function(item, operation) {
-        var crossrefOpenURL = "https://www.crossref.org/openurl?pid=zoteroDOI@wiernik.org&";
-        var ctx = Zotero.OpenURL.createContextObject(item, "1.0");
-        if (ctx) {
-            var url = crossrefOpenURL + ctx + "&multihit=true";
-            var req = new XMLHttpRequest();
-            req.open("GET", url, true);
-      
-            req.onreadystatechange = function() {
-                if (req.readyState == 4) {
-                    if (req.status == 200) {
-                        var response = req.responseXML.getElementsByTagName("query")[0];
-                        var status = response.getAttribute("status")
-                        if (status === "resolved") {
-                            var doi = response.getElementsByTagName("doi")[0].childNodes[0].nodeValue;
-                            if (operation === "short") {
-                                item.setField("DOI", doi);
-                                this.updateItem(item, operation);
-      
-                            } else {
-                                item.setField("DOI", doi);
-                                item.removeTag(getPref("tag_invalid"));
-                                item.removeTag(getPref("tag_multiple"));
-                                item.removeTag(getPref("tag_nodoi"));
-                                item.saveTx();
-                                this.counter++;
-                                this.updateNextItem(operation);
-                            }
-      
-      
-                        } else if (status === "unresolved") {
-                            error_nodoi = true;
-                            item.removeTag(getPref("tag_invalid"));
-                            item.removeTag(getPref("tag_multiple"));
-                            item.removeTag(getPref("tag_nodoi"));
-                            if(getPref("tag_nodoi") !== "") item.addTag(getPref("tag_nodoi"));
-                            item.saveTx();
-                            this.updateNextItem(operation);
-      
-                        } else if (status === "multiresolved") {
-                            error_multiple = true;
-                            Zotero.Attachments.linkFromURL({"url":crossrefOpenURL + ctx, "parentItemID":item.id, "contentType":"text/html", "title":"Multiple DOIs found"});
-                            if (item.hasTag(getPref("tag_invalid")) || item.hasTag(getPref("tag_nodoi"))) {
-                                item.removeTag(getPref("tag_invalid"));
-                                item.removeTag(getPref("tag_nodoi"));
-                            }
-                            // TODO: Move this tag to the attachment link
-                            if(getPref("tag_multiple") !== "") item.addTag(getPref("tag_multiple"));
-                            item.saveTx();
-                            this.updateNextItem(operation);
-      
-                        } else {
-                            Zotero.debug("Zotero DOI Manager: CrossRef lookup: Unknown status code: " + status);
-                            this.updateNextItem(operation);
-                        }
-      
-                    } else {
-                        this.updateNextItem(operation);
-                    }
-      
-                }
-            };
-      
-            req.send(null);
-      
-          }
-      
-          return false;
-      
     },
 
     // Process items workflow
@@ -337,9 +270,87 @@ Zotero.ShortDOI = {
 
     // Update item main function
     updateItem: function(item, operation) {
-        var url = this.generateItemUrl(item, operation);
+        var oldDOI = item.getField("DOI");        
+        if (!oldDOI) {
+            var oldDOI = this.doiFromExtra(item, "long");
+        }
+        if (oldDOI && oldDOI.match(/10\/[^\s]*[^\s.,]/)) {
+            // If a shortDOI is stored in DOI field, move it to shortDOI and retrieve long DOI
+            var oldShortDOI = oldDOI;
+            oldDOI = null;
+        } else {
+            var oldShortDOI = this.doiFromExtra(item, "short");
+        }
+        doi = Zotero.Utilities.cleanDOI(oldDOI);
+        shortDOI = Zotero.Utilities.cleanDOI(oldShortDOI);
+
+        // Ill-formed DOIs will be deleted at this point.
+
+        /* TODO: Should I always do a double check that the DOI is correct from CrossRef
+                 (versus a DOI for a different item)? This is a concern if the DOI is 
+                 stored in Extra because it may have stuck around from an item change.
+
+                 The reason not to do this is performance and to avoid unnecessary calls 
+                 to CrossRef.
+        */
+
+        if (doi) {
+            if (shortDOI) {
+                // If both DOI and shortDOI, generate URLs to verify
+                var longURL = this.generateURL(doi, "check");
+                var shortURL = this.generateURL(shortDOI, "check");
+            } else {
+                // If DOI, but no shortDOI, generate URL to look up shortDOI
+                var shortLookupURL = this.generateURL(doi, "short");
+            }
+        } else {
+            if (shortDOI) {
+                // If shortDOI, but no DOI, generate URL to verify and retrieve DOI
+                var shortURL = this.generateURL(shortDOI, "check");
+            } else {
+                // If no DOI information, look up DOI from CrossRef
+                var doi = this.crossrefLookup(item, operation);
+                var shortLookupURL = this.generateURL(doi, "short");
+            }
+        }
+
+        if (longURL) {
+            // Check if invalid
+
+            // Request data from DOI.org
+
+        }
+
+        if (shortURL) {
+            // Check if invalid
+
+            // Request data from DOI.org
+            
+        }
+
+        if (shortLookupURL) {
+            // Check if invalid
+
+            // Request data from shortDOI.org
+            
+        }
+
+        // At the end of the process, if new short/DOI values !== old short/DOI values,
+        // invalidate()
+
+        // At the end of the process, if shortDOI and DOI values are not for same source,
+        // add conflict tag
+
+        // At the end of the process, if there are multiple possible DOIs, then add
+        // multiple tag
+
+        // TODO: Remove No DOI Found tag to avoid massive false positives?
+        //       I expect there will be massive false positives for 
+        //       non-journalArticle/conferencePaper items.
+        //       Just add a debug message.
+
     
-        if ( ! url ) {
+        if ( ! url ) { // TODO: What was this first check for?
             if (item.hasTag(getPref("tag_invalid"))) {
                 item.removeTag(getPref("tag_invalid"));
                 item.saveTx();
@@ -360,7 +371,7 @@ Zotero.ShortDOI = {
                     if (req.readyState == 4) {
                         if (req.status == 200) {
                             if (item.isRegularItem() && !item.isCollection()) {
-                                if (oldDOI.match(/10\/[^\s]*[^\s\.,]/)) {
+                                if (oldDOI.match(/10\/[^\s]*[^\s.,]/)) {
                                     if (req.response.responseCode == 1) {
                                         if (req.response.handle != oldDOI) {
                                             var shortDOI = req.response.handle.toLowerCase();
@@ -407,7 +418,7 @@ Zotero.ShortDOI = {
                     if (req.readyState == 4) {
                         if (req.status == 200) {
                             if (req.response.responseCode == 1) {
-                                if (oldDOI.match(/10\/[^\s]*[^\s\.,]/)) {
+                                if (oldDOI.match(/10\/[^\s]*[^\s.,]/)) {
     
                                     if (item.isRegularItem() && !item.isCollection()) {
                                         var longDOI = req.response.values["1"].data.value.toLowerCase();
@@ -487,6 +498,88 @@ Zotero.ShortDOI = {
                 req.send(null);
             }
         }
+    }, 
+
+    sendRequest: function() {
+
+    },
+
+    shortDOIorgLookup: function(url) {
+
+    },
+
+    DOIorgLookup: function(url) {
+
+    },
+
+    crossrefLookup: function(item, operation) {
+        var crossrefOpenURL = "https://www.crossref.org/openurl?pid=zoteroDOI@wiernik.org&";
+        var ctx = Zotero.OpenURL.createContextObject(item, "1.0");
+        if (ctx) {
+            var url = crossrefOpenURL + ctx + "&multihit=true";
+            var req = new XMLHttpRequest();
+            req.open("GET", url, true);
+      
+            req.onreadystatechange = function() {
+                if (req.readyState == 4) {
+                    if (req.status == 200) {
+                        var response = req.responseXML.getElementsByTagName("query")[0];
+                        var status = response.getAttribute("status")
+                        if (status === "resolved") {
+                            var doi = response.getElementsByTagName("doi")[0].childNodes[0].nodeValue;
+                            if (operation === "short") {
+                                item.setField("DOI", doi);
+                                this.updateItem(item, operation);
+      
+                            } else {
+                                item.setField("DOI", doi);
+                                item.removeTag(getPref("tag_invalid"));
+                                item.removeTag(getPref("tag_multiple"));
+                                item.removeTag(getPref("tag_nodoi"));
+                                item.saveTx();
+                                this.counter++;
+                                this.updateNextItem(operation);
+                            }
+      
+                        } else if (status === "unresolved") {
+                            error_nodoi = true;
+                            item.removeTag(getPref("tag_invalid"));
+                            item.removeTag(getPref("tag_multiple"));
+                            item.removeTag(getPref("tag_nodoi"));
+                            if(getPref("tag_nodoi") !== "") item.addTag(getPref("tag_nodoi"));
+                            item.saveTx();
+                            this.updateNextItem(operation);
+      
+                        } else if (status === "multiresolved") {
+                            error_multiple = true;
+                            Zotero.Attachments.linkFromURL({"url":crossrefOpenURL + ctx, "parentItemID":item.id, "contentType":"text/html", "title":"Multiple DOIs found"});
+                            if (item.hasTag(getPref("tag_invalid")) || item.hasTag(getPref("tag_nodoi"))) {
+                                item.removeTag(getPref("tag_invalid"));
+                                item.removeTag(getPref("tag_nodoi"));
+                            }
+                            // TODO: Move this tag to the attachment link
+                            if(getPref("tag_multiple") !== "") item.addTag(getPref("tag_multiple"));
+                            item.saveTx();
+                            this.updateNextItem(operation);
+      
+                        } else {
+                            Zotero.debug("DOI Manager: CrossRef lookup: Unknown status code: " + status);
+                            this.updateNextItem(operation);
+                        }
+      
+                    } else {
+                        this.updateNextItem(operation);
+                    }
+      
+                }
+            };
+      
+            req.send(null);
+      
+          }
+      
+          return false;
+      
     }
 };
 
