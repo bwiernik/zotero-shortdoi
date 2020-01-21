@@ -593,8 +593,46 @@ function setPref(pref, value) {
     return Zotero.Prefs.set("extensions.shortdoi." + pref, value, true);
 };
 
+function wrapRetrieveItem() {
+	var origFunc = Zotero.Cite.System.prototype.retrieveItem;
+	Zotero.Cite.System.prototype.retrieveItem = function () {
+		var cslItem = origFunc.apply(Zotero.Cite.System.prototype, arguments);
+		if (!getPref("export.useShortDOI")) {
+			// substitute shortDOI for DOI if supplied
+			let shortDOI = cslItem.extra.match(/^short\s?doi:\s*(.+)/mi);
+			if (shortDOI) {
+				cslItem.DOI = shortDOI[1];
+			}
+		}
+		return cslItem;
+	};
+}
 
+const marker = 'MyExtensionHasMonkeyPatched'
 
+function patch(object, method, patcher) {
+  if (object[method][marker]) return // not strictly required
+  object[method] = patcher(object[method])
+  object[method][marker] = true // not strictly required
+}
+
+patch(Zotero.Cite.System.prototype, 'retrieveItem', original => function () {
+    let cslItem = original.apply(this, arguments);
+    if (!Zotero.Prefs.get("export.useShortDOI")) {
+      // substitute shortDOI for DOI if supplied
+      let shortDOI = cslItem.extra.match(/^short\s?doi:\s*(.+)/mi);
+      if (shortDOI) {
+        cslItem.DOI = shortDOI[1];
+      }
+    }
+    return cslItem;
+})
+
+patch(Some.object, 'method', original => async function (arg1, arg2) {
+    await someStuff()
+    return await original.apply(this, arguments) // or just return original.apply(this.arguments) if it's last
+})
+  
 
 if (typeof window !== "undefined") {
     window.addEventListener("load", function(e) {
