@@ -6,11 +6,11 @@ Zotero.ShortDOI = {};
 
 // Preference managers
 
-function getPref(pref) {
+Zotero.ShortDOI.getPref(pref) = function() {
     return Zotero.Prefs.get('extensions.shortdoi.' + pref, true);
 };
 
-function setPref(pref, value) {
+Zotero.ShortDOI.setPref(pref, value) = function() {
     return Zotero.Prefs.set('extensions.shortdoi.' + pref, value, true);
 };
 
