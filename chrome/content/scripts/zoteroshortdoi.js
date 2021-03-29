@@ -409,7 +409,7 @@ Zotero.ShortDOI.updateItem = function(item, operation) {
 Zotero.ShortDOI.invalidate = function(item, operation) {
     if (item.isRegularItem() && !item.isCollection()) {
         error_invalid = true;
-        if(Zotero.ShortDOI.getPref("tag_invalid") !== "") item.addTag(Zotero.ShortDOI.getPref("tag_invalid"));
+        if(Zotero.ShortDOI.getPref("tag_invalid") !== "") item.addTag(Zotero.ShortDOI.getPref("tag_invalid"), 1);
         item.saveTx();
     }
     Zotero.ShortDOI.updateNextItem(operation);
@@ -456,7 +456,7 @@ Zotero.ShortDOI.crossrefLookup = function(item, operation) {
                       item.removeTag(Zotero.ShortDOI.getPref("tag_invalid"));
                       item.removeTag(Zotero.ShortDOI.getPref("tag_multiple"));
                       item.removeTag(Zotero.ShortDOI.getPref("tag_nodoi"));
-                      if(Zotero.ShortDOI.getPref("tag_nodoi") !== "") item.addTag(Zotero.ShortDOI.getPref("tag_nodoi"));
+                      if(Zotero.ShortDOI.getPref("tag_nodoi") !== "") item.addTag(Zotero.ShortDOI.getPref("tag_nodoi"), 1);
                       item.saveTx();
                       Zotero.ShortDOI.updateNextItem(operation);
 
@@ -468,7 +468,7 @@ Zotero.ShortDOI.crossrefLookup = function(item, operation) {
                           item.removeTag(Zotero.ShortDOI.getPref("tag_nodoi"));
                       }
                       // TODO: Move this tag to the attachment link
-                      if(Zotero.ShortDOI.getPref("tag_multiple") !== "") item.addTag(Zotero.ShortDOI.getPref("tag_multiple"));
+                      if(Zotero.ShortDOI.getPref("tag_multiple") !== "") item.addTag(Zotero.ShortDOI.getPref("tag_multiple"), 1);
                       item.saveTx();
                       Zotero.ShortDOI.updateNextItem(operation);
 
