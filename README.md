@@ -13,6 +13,14 @@ Code for this extension is based in part [Zotero Google Scholar Citations](https
   - Verify and clean DOIs: For the selected items, look up full DOIs (replacing stored DOIs, if any), verify that stored DOIs are valid, and mark invalid DOIs.
     - This function also removes unnecessary prefixes (such as `doi:`, `https://doi.org/`, or a publisher URL prefix) from the DOI field.
 
+### How to Install
+
+  - Download the `.xpi` file for the [latest release](https://github.com/bwiernik/zotero-shortdoi/releases/latest).
+    - If you are using Firefox, be sure to right-click on the file link and choose Save Link As…
+  - In Zotero, open the Tools → Add-Ons… menu
+  - Drag the downloaded `.xpi` file to the Add-Ons popup window.
+    - Alternatively, click on the Gear ⚙ button in Add-Ons popup window, choose Install Add-On from File…, and select the downloaded `.xpi` file.
+
 ### License
 
 Copyright (C) 2017 Brenton M. Wiernik
