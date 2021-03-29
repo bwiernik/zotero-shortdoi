@@ -178,7 +178,7 @@ Zotero.ShortDOI.generateItemUrl = function(item, operation) {
             doi = Zotero.Utilities.cleanDOI(doi);
             if (doi) {
                 if (operation === "short" && ! doi.match(/10\/[^\s]*[^\s\.,]/)) {
-                    var url = 'http://shortdoi.org/' + encodeURIComponent(doi) + '?format=json';
+                    var url = 'https://shortdoi.org/' + encodeURIComponent(doi) + '?format=json';
                     return url;
 
                 } else {
