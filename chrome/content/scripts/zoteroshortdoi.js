@@ -108,7 +108,7 @@ Zotero.ShortDOI.resetState = function(operation) {
               var progressWindowInvalid = new Zotero.ProgressWindow({closeOnClick:true});
               progressWindowInvalid.changeHeadline("Invalid DOI");
               if(Zotero.ShortDOI.getPref("tag_invalid") !== "") {
-                progressWindowInvalid.progress = new progressWindowInvalid.ItemProgress(icon, "Invalid DOIs were found. These have been tagged with '" + getPref("tag_invalid") + "'.");
+                progressWindowInvalid.progress = new progressWindowInvalid.ItemProgress(icon, "Invalid DOIs were found. These have been tagged with '" + Zotero.ShortDOI.getPref("tag_invalid") + "'.");
               } else {
                 progressWindowInvalid.progress = new progressWindowInvalid.ItemProgress(icon, "Invalid DOIs were found.");
               }
@@ -121,7 +121,7 @@ Zotero.ShortDOI.resetState = function(operation) {
               var progressWindowNoDOI = new Zotero.ProgressWindow({closeOnClick:true});
               progressWindowNoDOI.changeHeadline("DOI not found");
               if(Zotero.ShortDOI.getPref("tag_nodoi") !== "") {
-                progressWindowNoDOI.progress = new progressWindowNoDOI.ItemProgress(icon, "No DOI was found for some items. These have been tagged with '" + getPref("tag_nodoi") + "'.");
+                progressWindowNoDOI.progress = new progressWindowNoDOI.ItemProgress(icon, "No DOI was found for some items. These have been tagged with '" + Zotero.ShortDOI.getPref("tag_nodoi") + "'.");
               } else {
                 progressWindowNoDOI.progress = new progressWindowNoDOI.ItemProgress(icon, "No DOI was found for some items.");
               }
