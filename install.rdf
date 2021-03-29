@@ -6,11 +6,11 @@
     <RDF:Description
         RDF:about="urn:mozilla:install-manifest"
         em:id="zoteroshortdoi@wiernik.org"
-        em:name="Zotero DOI Manager"
-        em:version="1.3.9"
+        em:name="DOI Manager"
+        em:version="1.4.0"
         em:type="2"
         em:creator="Brenton M. Wiernik"
-        em:description="Zotero plugin for auto-fetching and validating DOI and shortDOI names"
+        em:description="Plugin for fetching and validating DOI and shortDOI names"
         em:homepageURL="https://github.com/bwiernik/zotero-shortdoi"
         em:updateURL="https://raw.githubusercontent.com/bwiernik/zotero-shortdoi/master/update.rdf">
         <em:type>2</em:type>
