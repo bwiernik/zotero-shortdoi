@@ -1,0 +1,16 @@
+<!ENTITY zotero.zoteroshortdoi.short.label "Frage shortDOIs ab">
+<!ENTITY zotero.zoteroshortdoi.long.label "Frage lange DOIs ab">
+<!ENTITY zotero.zoteroshortdoi.check.label "Prüfe und säubere DOIs">
+<!ENTITY zotero.zoteroshortdoi.menu.label "DOIs verwalten">
+<!ENTITY zotero.zoteroshortdoi.toolsmenu.label "DOIs für neue Einträge abfragen">
+
+<!ENTITY shortdoi-preferences-label "DOI Manager Einstellungen">
+<!ENTITY shortdoi-autoretrieve-label "DOIs für neue Einträge abfragen">
+<!ENTITY shortdoi-autoretrieve-short-label "shortDOIs">
+<!ENTITY shortdoi-autoretrieve-long-label "Lange DOIs">
+<!ENTITY shortdoi-autoretrieve-check-label "DOIs nur prüfen">
+<!ENTITY shortdoi-autoretrieve-no-label "Nein">
+<!ENTITY shortdoi-menu-label "DOIs verwalten">
+<!ENTITY shortdoi-menu-short-label "Frage shortDOIs ab">
+<!ENTITY shortdoi-menu-long-label "Frage lange DOIs ab">
+<!ENTITY shortdoi-menu-check-label "Prüfe und räume DOIs auf">
