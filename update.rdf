@@ -10,16 +10,16 @@
               <rdf:Description>
                 <em:id>zotero@chnm.gmu.edu</em:id>
                 <em:minVersion>5.0</em:minVersion>
-                <em:maxVersion>5.*</em:maxVersion>
-                <em:updateLink>https://github.com/bwiernik/zotero-shortdoi/releases/download/v1.4.1/zotero-doi-manager-1.4.1.xpi</em:updateLink>
+                <em:maxVersion>6.*</em:maxVersion>
+                <em:updateLink>https://github.com/bwiernik/zotero-shortdoi/releases/download/v1.4.1/zotero-doi-manager-1.4.2.xpi</em:updateLink>
               </rdf:Description>
             </em:targetApplication>
             <em:targetApplication>
               <rdf:Description>
                 <em:id>juris-m@juris-m.github.io</em:id>
                 <em:minVersion>5.0</em:minVersion>
-                <em:maxVersion>5.*</em:maxVersion>
-                <em:updateLink>https://github.com/bwiernik/zotero-shortdoi/releases/download/v1.4.1/zotero-doi-manager-1.4.1.xpi</em:updateLink>
+                <em:maxVersion>6.*</em:maxVersion>
+                <em:updateLink>https://github.com/bwiernik/zotero-shortdoi/releases/download/v1.4.1/zotero-doi-manager-1.4.2.xpi</em:updateLink>
               </rdf:Description>
             </em:targetApplication>
           </rdf:Description>
