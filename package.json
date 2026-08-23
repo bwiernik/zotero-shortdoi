@@ -1,0 +1,15 @@
+{
+  "name": "zotero-doi-manager",
+  "version": "1.7.0",
+  "description": "Zotero plugin for fetching and validating DOI and shortDOI names.",
+  "private": true,
+  "contributors": [
+    "Brenton M. Wiernik",
+    "Julius Bairaktaris"
+  ],
+  "type": "module",
+  "scripts": {
+    "xpi": "node scripts/build-xpi.mjs",
+    "test": "node --test \"lib/__tests__/*.test.js\""
+  }
+}

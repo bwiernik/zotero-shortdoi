@@ -1,29 +1,56 @@
 <vbox>
-    <linkset>
-        <html:link rel="localization" href="zoteroshortdoi.ftl"/>
-    </linkset>
-    
-    <groupbox>
-        <label><html:h2 label="" data-l10n-id="zoteroshortdoi-autoretrieve"/></label>
-        <radiogroup preference="extensions.shortdoi.autoretrieve">
-            <radio label="" native="true" data-l10n-id="zoteroshortdoi-autoretrieve-short" value='short'/>
-            <radio label="" native="true" data-l10n-id="zoteroshortdoi-autoretrieve-long" value='long'/>
-            <radio label="" native="true" data-l10n-id="zoteroshortdoi-autoretrieve-check" value='check'/>
-            <radio label="" native="true" data-l10n-id="zoteroshortdoi-autoretrieve-no" value='none'/>
-        </radiogroup>
-    </groupbox>
-        
-    <groupbox>
-        <label><html:h2 label="" data-l10n-id="zoteroshortdoi-notfound-tag"/></label>
-        <description data-l10n-id="zoteroshortdoi-notfound-tag-desc"/>
-        
-        <label data-l10n-id="zoteroshortdoi-tag-invalid"/>
-        <html:input preference="extensions.shortdoi.tag_invalid" type="text" />
-        
-        <label data-l10n-id="zoteroshortdoi-tag-multiple"/>
-        <html:input preference="extensions.shortdoi.tag_multiple" type="text" />
+  <linkset>
+    <html:link rel="localization" href="zoteroshortdoi.ftl" />
+  </linkset>
 
-        <label data-l10n-id="zoteroshortdoi-tag-nodoi"/>
-        <html:input preference="extensions.shortdoi.tag_nodoi" type="text" />
-    </groupbox>
+  <groupbox>
+    <label
+      ><html:h2 label="" data-l10n-id="zoteroshortdoi-autoretrieve"
+    /></label>
+    <radiogroup preference="extensions.shortdoi.autoretrieve">
+      <radio
+        label=""
+        native="true"
+        data-l10n-id="zoteroshortdoi-autoretrieve-short"
+        value="short"
+      />
+      <radio
+        label=""
+        native="true"
+        data-l10n-id="zoteroshortdoi-autoretrieve-long"
+        value="long"
+      />
+      <radio
+        label=""
+        native="true"
+        data-l10n-id="zoteroshortdoi-autoretrieve-check"
+        value="check"
+      />
+      <radio
+        label=""
+        native="true"
+        data-l10n-id="zoteroshortdoi-autoretrieve-no"
+        value="none"
+      />
+    </radiogroup>
+  </groupbox>
+
+  <groupbox>
+    <label
+      ><html:h2 label="" data-l10n-id="zoteroshortdoi-notfound-tag"
+    /></label>
+    <description data-l10n-id="zoteroshortdoi-notfound-tag-desc" />
+
+    <label data-l10n-id="zoteroshortdoi-tag-invalid" />
+    <html:input preference="extensions.shortdoi.tag_invalid" type="text" />
+
+    <label data-l10n-id="zoteroshortdoi-tag-multiple" />
+    <html:input preference="extensions.shortdoi.tag_multiple" type="text" />
+
+    <label data-l10n-id="zoteroshortdoi-tag-nodoi" />
+    <html:input preference="extensions.shortdoi.tag_nodoi" type="text" />
+
+    <label data-l10n-id="zoteroshortdoi-tag-found" />
+    <html:input preference="extensions.shortdoi.tag_found" type="text" />
+  </groupbox>
 </vbox>

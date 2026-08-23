@@ -1,3 +1,29 @@
+## Item-Kontextmenü
+
+zoteroshortdoi-menu-manage =
+    .label = DOIs verwalten
+zoteroshortdoi-menu-short =
+    .label = shortDOIs abfragen
+zoteroshortdoi-menu-long =
+    .label = Lange DOIs abfragen
+zoteroshortdoi-menu-check =
+    .label = DOIs prüfen und bereinigen
+
+## Werkzeuge-Menü
+
+zoteroshortdoi-tools-autoretrieve =
+    .label = DOIs für neue Einträge abfragen
+zoteroshortdoi-tools-autoretrieve-short =
+    .label = { $marker }shortDOIs
+zoteroshortdoi-tools-autoretrieve-long =
+    .label = { $marker }Lange DOIs
+zoteroshortdoi-tools-autoretrieve-check =
+    .label = { $marker }DOIs nur prüfen
+zoteroshortdoi-tools-autoretrieve-none =
+    .label = { $marker }Nein
+
+## Einstellungen
+
 zoteroshortdoi-autoretrieve = DOIs für neue Einträge abfragen
 
 zoteroshortdoi-autoretrieve-short =
@@ -21,3 +47,5 @@ zoteroshortdoi-tag-invalid = Ungültige DOI
 zoteroshortdoi-tag-multiple = Mehrere mögliche DOIs gefunden
 
 zoteroshortdoi-tag-nodoi = Keine DOI gefunden
+
+zoteroshortdoi-tag-found = DOI verfügbar, aber nicht gespeichert
