@@ -1,19 +1,19 @@
 {
-    "manifest_version": 2,
-    "name": "DOI Manager",
-    "version": "1.5.1",
-    "description": "Plugin for fetching and validating DOI and shortDOI names",
-    "author": "Brenton M. Wiernik",
-    "icons": {
-      "48": "skin/icon.png",
-      "96": "skin/icon@2x.png"
-    },
-    "applications": {
-        "zotero": {
-            "id": "zoteroshortdoi@wiernik.org",
-            "update_url": "https://raw.githubusercontent.com/bwiernik/zotero-shortdoi/master/updates.json",
-            "strict_min_version": "6.999",
-            "strict_max_version": "7.0.*"
-        }
+  "manifest_version": 2,
+  "name": "DOI Manager",
+  "version": "1.7.0",
+  "description": "Plugin for fetching and validating DOI and shortDOI names",
+  "author": "Brenton M. Wiernik, Julius Bairaktaris",
+  "icons": {
+    "48": "skin/icon.png",
+    "96": "skin/icon@2x.png"
+  },
+  "applications": {
+    "zotero": {
+      "id": "zoteroshortdoi@wiernik.org",
+      "update_url": "https://raw.githubusercontent.com/bwiernik/zotero-shortdoi/master/updates.json",
+      "strict_min_version": "10.0",
+      "strict_max_version": "10.0.*"
     }
+  }
 }
